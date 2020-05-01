@@ -7,15 +7,12 @@
 
 #include "jpgs.h"
 #include "jpgsdark.h"
-// #include "bmps.h"
-// #include "xbmps.h"
 
 #define SCREEN_HOME       210
-#define SCREEN_STOP_WATCH 220
+#define SCREEN_STOPWATCH  220
 #define SCREEN_ALARM      230
 #define SCREEN_TIMER      240
 #define SCREEN_SETTINGS   260
-#define SCREEN_MENU       270
 
 const String VERSION_NUMBER = "0.1.4";
 
@@ -24,6 +21,10 @@ int _currentScreen = SCREEN_HOME;
 bool _clockWidgetDisplayed = false;
 
 RTC_DS1307 rtc;
+
+bool _isStopWatchRunning = false;
+unsigned long _stopwatchStartTimestamp;
+unsigned long _stopwatchElapsedTime = 0;
 
 /////////////////////
 // Utility methods //
@@ -111,6 +112,99 @@ void displayHomeClock()
   }
 }
 
+//////////////////////
+// STOPWATCH SCREEN //
+//////////////////////
+
+void displayZeroTime() 
+{
+  ez.canvas.pos(50, 80);
+
+  ez.canvas.print(zeropad(0, 2));  
+  ez.canvas.print(":");
+  ez.canvas.print(zeropad(0, 2));
+  ez.canvas.print(":");
+  ez.canvas.print(zeropad(0, 2)); 
+}
+
+void displayActualTime()
+{
+  unsigned long elapsedTimeInSeconds = now() - _stopwatchStartTimestamp;
+
+  int hours = elapsedTimeInSeconds / 3600;
+  elapsedTimeInSeconds = elapsedTimeInSeconds % 3600;
+  int minutes = elapsedTimeInSeconds / 60;
+  int seconds = elapsedTimeInSeconds % 60;
+
+  ez.canvas.pos(50, 80);
+
+  ez.canvas.print(zeropad(hours, 2));  
+  ez.canvas.print(":");
+  ez.canvas.print(zeropad(minutes, 2));
+  ez.canvas.print(":");
+  ez.canvas.print(zeropad(seconds, 2));   
+}
+
+void initStopwatchScreen() 
+{ 
+  _currentScreen = SCREEN_STOPWATCH;
+  _clockWidgetDisplayed = isClockWidgetDisplayed();
+
+  ez.screen.clear();
+  ez.header.show("Stopwatch");
+      
+
+  ez.canvas.color(ez.theme->foreground);
+  ez.canvas.font(numonly7seg48);
+  
+  if (_isStopWatchRunning) {
+    ez.buttons.show("Stop # Reset # Menu");
+    displayActualTime();
+  } else {
+    ez.buttons.show("Start # Reset # Menu");
+    displayZeroTime();
+  }
+}
+
+void startStopwatch()
+{
+  if (_stopwatchElapsedTime == 0) {
+    _stopwatchStartTimestamp = now();
+  } else {
+    _stopwatchStartTimestamp = now() - _stopwatchElapsedTime;
+  }
+  _isStopWatchRunning = true;  
+}
+
+void stopStopwatch()
+{
+  _stopwatchElapsedTime = now() - _stopwatchStartTimestamp;
+  _isStopWatchRunning = false;
+}
+
+void resetStopwatch()
+{
+  _stopwatchElapsedTime = 0;
+  _isStopWatchRunning = false;
+
+  ez.canvas.color(ez.theme->foreground);
+  ez.canvas.font(numonly7seg48);
+  ez.canvas.pos(50, 80);
+
+  ez.canvas.print(zeropad(0, 2));  
+  ez.canvas.print(":");
+  ez.canvas.print(zeropad(0, 2));
+  ez.canvas.print(":");
+  ez.canvas.print(zeropad(0, 2)); 
+}
+
+void displayStopwatch()
+{
+  if (secondChanged() && _isStopWatchRunning) {
+    displayActualTime();
+  }
+}
+
 ///////////////
 // MAIN MENU //
 ///////////////
@@ -146,55 +240,6 @@ ezMenu initMainMenu()
     mainMenu.addItem(about_jpg_dark, "About");
     mainMenu.addItem(back_jpg_dark, "Back");
   }
-
-  //BMP files from FLASH - Black background is transparent
-  // mainMenu.addBmpImageItem(stopwatch_bmp, "Stopwatch", stopwatch_bmp_width, stopwatch_bmp_height);
-  // mainMenu.addBmpImageItem(alarm_bmp, "Alarm", alarm_bmp_width, alarm_bmp_height);
-  // mainMenu.addBmpImageItem(timer_bmp, "Timer", timer_bmp_width, timer_bmp_height);  
-  // mainMenu.addBmpImageItem(settings_bmp, "Settings", settings_bmp_width, settings_bmp_height);  
-  // mainMenu.addBmpImageItem(about_bmp, "About", about_bmp_width, about_bmp_height);  
-  // mainMenu.addBmpImageItem(back_bmp, "Back", back_bmp_width, back_bmp_height);
-  
-  //XBMP files in blue foreground and black background
-  // mainMenu.addXBmpImageItem(stopwatch_xbmp, "Stopwatch", stopwatch_xbmp_width, stopwatch_xbmp_height, TFT_BLUE, TFT_BLACK);
-  // mainMenu.addXBmpImageItem(alarm_xbmp, "Alarm", alarm_xbmp_width, alarm_xbmp_height, TFT_BLUE, TFT_BLACK);
-  // mainMenu.addXBmpImageItem(timer_xbmp, "Timer", timer_xbmp_width, timer_xbmp_height, TFT_BLUE, TFT_BLACK);  
-  // mainMenu.addXBmpImageItem(settings_xbmp, "Settings", settings_xbmp_width, settings_xbmp_height, TFT_BLUE, TFT_BLACK);  
-  // mainMenu.addXBmpImageItem(about_xbmp, "About", about_xbmp_width, about_xbmp_height, TFT_BLUE, TFT_BLACK);  
-  // mainMenu.addXBmpImageItem(back_xbmp, "Back", back_xbmp_width, back_xbmp_height, TFT_BLUE, TFT_BLACK);
-
-  //JPG files from SD card - Default theme
-  // mainMenu.addItem(SD, "/M5ezWatch/StopwatchDefault.jpg", "Stopwatch");
-  // mainMenu.addItem(SD, "/M5ezWatch/AlarmDefault.jpg", "Alarm");
-  // mainMenu.addItem(SD, "/M5ezWatch/TimerDefault.jpg", "Timer");
-  // mainMenu.addItem(SD, "/M5ezWatch/SettingsDefault.jpg", "Settings", ez.settings.menu);
-  // mainMenu.addItem(SD, "/M5ezWatch/AboutDefault.jpg", "About");
-  // mainMenu.addItem(SD, "/M5ezWatch/BackDefault.jpg", "Back");
-
-  //JPG files from SD card - Dark theme
-  // mainMenu.addItem(SD, "/M5ezWatch/StopwatchDark.jpg", "Stopwatch");
-  // mainMenu.addItem(SD, "/M5ezWatch/AlarmDark.jpg", "Alarm");
-  // mainMenu.addItem(SD, "/M5ezWatch/TimerDark.jpg", "Timer");
-  // mainMenu.addItem(SD, "/M5ezWatch/SettingsDark.jpg", "Settings", ez.settings.menu);
-  // mainMenu.addItem(SD, "/M5ezWatch/AboutDark.jpg", "About");
-  // mainMenu.addItem(SD, "/M5ezWatch/BackDark.jpg", "Back");
-
-  //Raw bmp files from SD card - only 24 bit (True Color) bmp are supported without transparency (BMP file format does not support transparency)
-  //https://online-converting.com/image/convert2bmp/
-  // mainMenu.addBmpImageItem(SD, "/M5ezWatch/Stopwatch.bmp", "Stopwatch");
-  // mainMenu.addBmpImageItem(SD, "/M5ezWatch/Alarm.bmp", "Alarm");
-  // mainMenu.addBmpImageItem(SD, "/M5ezWatch/Timer.bmp", "Timer");
-  // mainMenu.addBmpImageItem(SD, "/M5ezWatch/Settings.bmp", "Settings", ez.settings.menu);
-  // mainMenu.addBmpImageItem(SD, "/M5ezWatch/About.bmp", "About");
-  // mainMenu.addBmpImageItem(SD, "/M5ezWatch/Back.bmp", "Back");
-  
-  //PNG files from SD card - its rendering is quite SLOW!!!
-  // mainMenu.addPngImageItem(SD, "/M5ezWatch/Stopwatch.png", "Stopwatch");
-  // mainMenu.addPngImageItem(SD, "/M5ezWatch/Alarm.png", "Alarm");
-  // mainMenu.addPngImageItem(SD, "/M5ezWatch/Timer.png", "Timer");
-  // mainMenu.addPngImageItem(SD, "/M5ezWatch/Settings.png", "Settings", ez.settings.menu);
-  // mainMenu.addPngImageItem(SD, "/M5ezWatch/About.png", "About");
-  // mainMenu.addPngImageItem(SD, "/M5ezWatch/Back.png", "Back");
   
   return mainMenu;
 }
@@ -206,8 +251,7 @@ ezMenu initMainMenu()
 void setup() {
   #include <themes/default.h>
   #include <themes/dark.h>
-
-  //Serial.begin(115200);  
+ 
   ez.begin();  
 
   Serial.println("\n");
@@ -258,17 +302,21 @@ void setup() {
   initHomeScreen();  
 }
 
-void loop() {  
+void loop() {    
   String buttonPressed = ez.buttons.poll();
-  if (buttonPressed != "") {    
+  if (buttonPressed  == "Menu") {              
+    back_to_menu:
+    int16_t selectedIndex = initMainMenu().runOnce();                   
+    switch (selectedIndex) {      
+      case 1: initStopwatchScreen(); break;  //Stopwatch screen
+      case 4: ez.settings.menuObj.runOnce(); Serial.println("Goto"); goto back_to_menu; break;     //Menu screen
+      default: initHomeScreen(); break; 
+    }     
+  } else if (buttonPressed != "") {    
     //Handle button press on the current screen
     switch (_currentScreen) {
       case SCREEN_HOME:		      
-        if (buttonPressed  == "Menu") {          
-          _currentScreen = SCREEN_MENU;
-          initMainMenu().run();        
-          initHomeScreen();
-        } else if (buttonPressed  == "Update") {
+         if (buttonPressed  == "Update") {
           ez.buttons.show("$Update # Menu # Power Off"); 
           updateNTP();        
           if (timeSet) {
@@ -304,7 +352,23 @@ void loop() {
           powerOff();
         }
         break;
-      case SCREEN_STOP_WATCH:			
+      case SCREEN_STOPWATCH:
+        if (buttonPressed == "Start") {
+          ez.buttons.show("$Stop # Reset # Menu");                    
+          startStopwatch();
+          delay(300);
+          ez.buttons.show("Stop # Reset # Menu");
+        } else if (buttonPressed == "Stop") {
+          ez.buttons.show("$Start # Reset # Menu");
+          stopStopwatch();
+          delay(300);
+          ez.buttons.show("Start # Reset # Menu");
+        } else if (buttonPressed == "Reset") {
+          ez.buttons.show("Start # $Reset # Menu");
+          resetStopwatch();
+          delay(300);
+          ez.buttons.show("Start # Reset # Menu");
+        }
         break;
       case SCREEN_ALARM:			
         break;
@@ -312,8 +376,6 @@ void loop() {
         break;
       case SCREEN_SETTINGS:			
         break;
-      case SCREEN_MENU:			
-        break;  
     }
   } else {
     //NO Button was pressed - Normal operation
@@ -321,15 +383,14 @@ void loop() {
       case SCREEN_HOME:
         displayHomeClock();
         break;
-      case SCREEN_STOP_WATCH:			
+      case SCREEN_STOPWATCH:
+        displayStopwatch();
         break;
       case SCREEN_ALARM:			
         break;
       case SCREEN_TIMER:			
         break;
       case SCREEN_SETTINGS:			
-        break;
-      case SCREEN_MENU:			
         break;
     }
   }
