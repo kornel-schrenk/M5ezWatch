@@ -26,6 +26,12 @@ bool _isStopWatchRunning = false;
 unsigned long _stopwatchStartTimestamp;
 unsigned long _stopwatchElapsedTime = 0;
 
+bool _isTimerRunning = false;
+unsigned long _timerStartTimestamp;
+unsigned long _timerElapsedTime = 0;
+int _timerIntervalMinutes = 1;
+int _timerIntervalSeconds = 0;
+
 /////////////////////
 // Utility methods //
 /////////////////////
@@ -153,7 +159,6 @@ void initStopwatchScreen()
   ez.screen.clear();
   ez.header.show("Stopwatch");
       
-
   ez.canvas.color(ez.theme->foreground);
   ez.canvas.font(numonly7seg48);
   
@@ -203,6 +208,122 @@ void displayStopwatch()
   if (secondChanged() && _isStopWatchRunning) {
     displayActualTime();
   }
+}
+
+//////////////////
+// ALARM SCREEN //
+//////////////////
+
+void initAlarmScreen() 
+{ 
+  _currentScreen = SCREEN_ALARM;
+  _clockWidgetDisplayed = isClockWidgetDisplayed();
+  
+  ez.screen.clear();
+  ez.header.show("Alarm");
+
+  ez.buttons.show("# # Menu");
+}
+
+//////////////////
+// TIMER SCREEN //
+//////////////////
+
+void displayZeroTimerTime() 
+{
+  ez.canvas.color(ez.theme->foreground);
+  ez.canvas.font(numonly7seg48);
+  ez.canvas.pos(90, 150);    
+
+  ez.canvas.print(zeropad(0, 2));
+  ez.canvas.print(":");
+  ez.canvas.print(zeropad(0, 2));
+
+  M5.Lcd.fillRect(10, 100, 300, 25, ez.theme->background);
+  M5.Lcd.progressBar(10, 100, 300, 25, 0);
+}
+
+void checkAndFireTimer(int elapsedMinutes, int elapsedSeconds)
+{
+  if (_isTimerRunning && elapsedMinutes == _timerIntervalMinutes && elapsedSeconds == _timerIntervalSeconds) {
+    // Play a buzz
+    M5.Speaker.tone(900, 300);
+
+    // Restart the timer
+    _timerStartTimestamp = now();
+
+    // Display zero time
+    displayZeroTimerTime();
+  }
+}
+
+void displayElapsedTimerTime()
+{
+  unsigned long elapsedTimeInSeconds = now() - _timerStartTimestamp;
+
+  int minutes = elapsedTimeInSeconds / 60;
+  int seconds = elapsedTimeInSeconds % 60;
+
+  ez.canvas.color(ez.theme->foreground);
+  ez.canvas.font(numonly7seg48);
+  ez.canvas.pos(90, 150);    
+
+  ez.canvas.print(zeropad(minutes, 2));
+  ez.canvas.print(":");
+  ez.canvas.print(zeropad(seconds, 2));
+
+  // Calculate elapsed time %
+  int timerIntervalInSeconds = _timerIntervalMinutes * 60 + _timerIntervalSeconds;
+  uint8_t elapsedPercentage = (elapsedTimeInSeconds * 100) / timerIntervalInSeconds;
+  M5.Lcd.progressBar(10, 100, 300, 25, elapsedPercentage);
+
+  checkAndFireTimer(minutes, seconds);
+}
+
+void initTimerScreen()
+{
+  _currentScreen = SCREEN_TIMER;
+  _clockWidgetDisplayed = isClockWidgetDisplayed();  
+
+  ez.screen.clear();
+  ez.header.show("Timer");
+
+  ez.canvas.color(ez.theme->foreground);
+  
+  ez.canvas.font(sans26);
+  ez.canvas.pos(20, 50);
+  ez.canvas.print("Interval: ");
+  ez.canvas.pos(200, 50);
+  ez.canvas.print(zeropad(_timerIntervalMinutes, 2));  
+  ez.canvas.print(":");
+  ez.canvas.print(zeropad(_timerIntervalSeconds, 2));   
+
+  if (_isTimerRunning) {
+    ez.buttons.show("Stop # Interval # Menu");
+    displayElapsedTimerTime();
+  } else {
+    ez.buttons.show("Start # Interval # Menu");
+    displayZeroTimerTime();
+  }  
+}
+
+void displayTimer()
+{
+  if (secondChanged() && _isTimerRunning) {
+    displayElapsedTimerTime();
+  }
+}
+
+void startTimer()
+{
+  _timerStartTimestamp = now();
+  _isTimerRunning = true;
+  displayZeroTimerTime();  
+}
+
+void stopTimer()
+{
+  _isTimerRunning = false;
 }
 
 ///////////////
@@ -309,7 +430,9 @@ void loop() {
     int16_t selectedIndex = initMainMenu().runOnce();                   
     switch (selectedIndex) {      
       case 1: initStopwatchScreen(); break;  //Stopwatch screen
-      case 4: ez.settings.menuObj.runOnce(); Serial.println("Goto"); goto back_to_menu; break;     //Menu screen
+      case 2: initAlarmScreen(); break;      //Alarm screen
+      case 3: initTimerScreen(); break;      
+      case 4: ez.settings.menuObj.runOnce(); Serial.println("Goto"); goto back_to_menu; break;     //Settings screen
       default: initHomeScreen(); break; 
     }     
   } else if (buttonPressed != "") {    
@@ -372,7 +495,18 @@ void loop() {
         break;
       case SCREEN_ALARM:			
         break;
-      case SCREEN_TIMER:			
+      case SCREEN_TIMER:		
+        if (buttonPressed == "Start") {
+          ez.buttons.show("$Stop # Interval # Menu");                    
+          startTimer();
+          delay(300);
+          ez.buttons.show("Stop # Interval # Menu");
+        } else if (buttonPressed == "Stop") {
+          ez.buttons.show("$Start # Interval # Menu");
+          stopTimer();
+          delay(300);
+          ez.buttons.show("Start # Interval # Menu");
+        }	
         break;
       case SCREEN_SETTINGS:			
         break;
@@ -388,7 +522,8 @@ void loop() {
         break;
       case SCREEN_ALARM:			
         break;
-      case SCREEN_TIMER:			
+      case SCREEN_TIMER:
+        displayTimer();			
         break;
       case SCREEN_SETTINGS:			
         break;
