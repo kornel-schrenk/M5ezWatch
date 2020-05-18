@@ -26,6 +26,8 @@ bool _isStopWatchRunning = false;
 unsigned long _stopwatchStartTimestamp;
 unsigned long _stopwatchElapsedTime = 0;
 
+bool _isAlarmRunning = false;
+
 bool _isTimerRunning = false;
 unsigned long _timerStartTimestamp;
 unsigned long _timerElapsedTime = 0;
@@ -96,6 +98,28 @@ void initHomeScreen()
   ez.screen.clear();
   ez.header.show("M5ezWatch");
   ez.buttons.show("Update # Menu # Power Off");  
+
+  if (ez.theme->name == "Default") {
+    if (_isStopWatchRunning) {
+      M5.Lcd.drawJpg((uint8_t *)stopwatch_jpg_small, (sizeof(stopwatch_jpg_small) / sizeof(stopwatch_jpg_small[0])), 285, 64, 32, 32);   
+    }
+    if (_isAlarmRunning) {
+      M5.Lcd.drawJpg((uint8_t *)alarm_jpg_small, (sizeof(alarm_jpg_small) / sizeof(alarm_jpg_small[0])), 285, 104, 32, 32);
+    }
+    if (_isTimerRunning) {
+      M5.Lcd.drawJpg((uint8_t *)timer_jpg_small, (sizeof(timer_jpg_small) / sizeof(timer_jpg_small[0])), 285, 144, 32, 32);
+    } 
+  } else if (ez.theme->name == "Dark") {
+    if (_isStopWatchRunning) {
+      M5.Lcd.drawJpg((uint8_t *)stopwatch_jpg_small_dark, (sizeof(stopwatch_jpg_small_dark) / sizeof(stopwatch_jpg_small_dark[0])), 285, 64, 32, 32);   
+    }
+    if (_isAlarmRunning) {
+      M5.Lcd.drawJpg((uint8_t *)alarm_jpg_small, (sizeof(alarm_jpg_small_dark) / sizeof(alarm_jpg_small_dark[0])), 285, 104, 32, 32);
+    }
+    if (_isTimerRunning) {
+      M5.Lcd.drawJpg((uint8_t *)timer_jpg_small, (sizeof(timer_jpg_small_dark) / sizeof(timer_jpg_small_dark[0])), 285, 144, 32, 32);
+    } 
+  }    
 
   if (timeSet) {     
     updateTime();
