@@ -4,9 +4,6 @@
 // Variable declarations //
 ///////////////////////////
 
-  // The currently displayed screen
-  int DateTimePicker::_currentScreen;
-
   // The currently picked date and time values
   String DateTimePicker::_pickedYear;
   String DateTimePicker::_pickedMonth;
@@ -14,37 +11,11 @@
   String DateTimePicker::_pickedHour;
   String DateTimePicker::_pickedMinute;
 
-  // It will store the picked date and time values - initially empty
-  ezMenu DateTimePicker::_mainMenu;
-
-  // No navigation buttons are required on an initially empty main menu
-  String DateTimePicker::_mainMenuEmptyButtons;
-  // Navigation buttons are visible on a non-empty main menu
-  String DateTimePicker::_mainMenuNonEmptyButtons;
-
   // General picker settings
   String DateTimePicker::_pickerButtons;
   GFXfont DateTimePicker::_pickerFont;
   int8_t DateTimePicker::_pickerCheckType;
   String DateTimePicker::_pickerCheckButtonName;
-
-///////////////
-// MAIN MENU //
-///////////////
-
-void DateTimePicker::initMainMenu(String pickerName)
-{
-  _currentScreen = PICKER_SCREEN_MAIN_MENU;
-  
-  _mainMenu = ezMenu(pickerName);
-
-  _mainMenuEmptyButtons = "#Add#Select#Del##Menu";
-  _mainMenuNonEmptyButtons = "up#Add#Select#Del#down#Menu";
-
-  _mainMenu.setCheckType(CHECK_TYPE_RADIO);
-  _mainMenu.setCheckButtonName("Select");
-  _mainMenu.buttons(_mainMenuEmptyButtons);    
-}
 
 /////////////
 // Pickers //
@@ -54,8 +25,6 @@ void DateTimePicker::initMainMenu(String pickerName)
 
 void DateTimePicker::displayYearPicker() 
 {  
-  _currentScreen = PICKER_SCREEN_YEAR_PICKER;
-
   ezMenu yearPickerMenu("Year");
 
   yearPickerMenu.buttons(_pickerButtons);
@@ -72,10 +41,7 @@ void DateTimePicker::displayYearPicker()
 
   yearPickerMenu.runOnce();
   
-  if (yearPickerMenu.pickButton() == "Back") {
-    _currentScreen = PICKER_SCREEN_PICKER_MENU;
-  } else if (yearPickerMenu.pickButton() == "Ok") {
-    _currentScreen = PICKER_SCREEN_PICKER_MENU;
+  if (yearPickerMenu.pickButton() == "Ok") {  
     String checkedYear = yearPickerMenu.getCheckedItemName();
     if (checkedYear != "") {
       _pickedYear = checkedYear;
@@ -99,8 +65,6 @@ bool DateTimePicker::advancedDisplayYearPicker(ezMenu* callingMenu) {
 
 void DateTimePicker::displayMonthPicker()
 {
-  _currentScreen = PICKER_SCREEN_MONTH_PICKER;
-
   ezMenu monthPickerMenu("Month");
 
   monthPickerMenu.buttons(_pickerButtons);
@@ -127,10 +91,7 @@ void DateTimePicker::displayMonthPicker()
 
   monthPickerMenu.runOnce();
   
-  if (monthPickerMenu.pickButton() == "Back") {
-    _currentScreen = PICKER_SCREEN_PICKER_MENU;
-  } else if (monthPickerMenu.pickButton() == "Ok") {
-    _currentScreen = PICKER_SCREEN_PICKER_MENU;    
+  if (monthPickerMenu.pickButton() == "Ok") {    
     String checkedMonth = monthPickerMenu.getCheckedItemName();
     if (checkedMonth != "") {
       _pickedMonth = checkedMonth;
@@ -164,8 +125,6 @@ bool DateTimePicker::advancedDisplayMonthPicker(ezMenu* callingMenu) {
 
 void DateTimePicker::displayDayPicker()
 {
-  DateTimePicker::_currentScreen = PICKER_SCREEN_DAY_PICKER;
-
   ezMenu dayPickerMenu("Day");
 
   dayPickerMenu.buttons(_pickerButtons);
@@ -217,10 +176,7 @@ void DateTimePicker::displayDayPicker()
 
   dayPickerMenu.runOnce();
   
-  if (dayPickerMenu.pickButton() == "Back") {
-    _currentScreen = PICKER_SCREEN_PICKER_MENU;
-  } else if (dayPickerMenu.pickButton() == "Ok") {
-    _currentScreen = PICKER_SCREEN_PICKER_MENU;    
+if (dayPickerMenu.pickButton() == "Ok") {
     String checkedDay = dayPickerMenu.getCheckedItemName();
     if (checkedDay != "") {
       _pickedDay = checkedDay;
@@ -239,8 +195,6 @@ bool DateTimePicker::advancedDisplayDayPicker(ezMenu* callingMenu) {
 
 void DateTimePicker::displayHourPicker()
 {
-  _currentScreen = PICKER_SCREEN_HOUR_PICKER;
-
   ezMenu hourPickerMenu("Hour");
 
   hourPickerMenu.buttons(_pickerButtons);
@@ -279,10 +233,7 @@ void DateTimePicker::displayHourPicker()
 
   hourPickerMenu.runOnce();
   
-  if (hourPickerMenu.pickButton() == "Back") {
-    _currentScreen = PICKER_SCREEN_PICKER_MENU;
-  } else if (hourPickerMenu.pickButton() == "Ok") {
-    _currentScreen = PICKER_SCREEN_PICKER_MENU;    
+  if (hourPickerMenu.pickButton() == "Ok") {    
     String checkedHour = hourPickerMenu.getCheckedItemName();
     if (checkedHour != "") {
       _pickedHour = checkedHour;
@@ -301,8 +252,6 @@ bool DateTimePicker::advancedDisplayHourPicker(ezMenu* callingMenu) {
 
 void DateTimePicker::displayMinutePicker()
 {
-  _currentScreen = PICKER_SCREEN_MINUTE_PICKER;
-
   ezMenu minutePickerMenu("Minute");
 
   minutePickerMenu.buttons(_pickerButtons);
@@ -377,10 +326,7 @@ void DateTimePicker::displayMinutePicker()
 
   minutePickerMenu.runOnce();
   
-  if (minutePickerMenu.pickButton() == "Back") {
-    _currentScreen = PICKER_SCREEN_PICKER_MENU;
-  } else if (minutePickerMenu.pickButton() == "Ok") {    
-    _currentScreen = PICKER_SCREEN_PICKER_MENU;    
+  if (minutePickerMenu.pickButton() == "Ok") {           
     String checkedMinute = minutePickerMenu.getCheckedItemName();
     if (checkedMinute != "") {
       _pickedMinute = checkedMinute;
@@ -395,15 +341,15 @@ bool DateTimePicker::advancedDisplayMinutePicker(ezMenu* callingMenu) {
    return true;
 }
 
+/////////////////
 // Picker Menu //
+/////////////////
 
-void DateTimePicker::displayPickerMenu()
+String DateTimePicker::displayPickerMenu(String pickerName)
 { 
-  _currentScreen = PICKER_SCREEN_PICKER_MENU;
+  ezMenu pickerMenu(pickerName);
 
-  ezMenu pickerMenu("Date and time");
-
-  pickerMenu.buttons("up#Ok#Select##down#Back"); 
+  pickerMenu.buttons("up#Ok|Set#Select##down#Back|Clear"); 
   pickerMenu.txtFont(&FreeMonoBold12pt7b); 
 
   String yearItemText = "Year:   " + _pickedYear; 
@@ -421,69 +367,36 @@ void DateTimePicker::displayPickerMenu()
   pickerMenu.addItem(minuteItemText, NULL, advancedDisplayMinutePicker, NULL);  
 
   pickerMenu.runOnce();
-
+ 
   if (pickerMenu.pickButton() == "Back") {
-    _currentScreen = PICKER_SCREEN_MAIN_MENU;
+    return "Back";    
   } else if (pickerMenu.pickButton() == "Ok") {
-    _currentScreen = PICKER_SCREEN_MAIN_MENU;
-
-    // Add the picked date and time in YYYY-mm-dd HH:ii format to the main menu - see: https://github.com/ropg/ezTime#datetime
-    String addedDateTime = _pickedYear + "-" + _pickedMonth + "-" + _pickedDay + " " + _pickedHour + ":" + _pickedMinute;
-    _mainMenu.addItem(addedDateTime);
+    return "Ok";
   } 
+  return "";
 }
 
-String DateTimePicker::runOnce(String pickerName)
+time_t DateTimePicker::runOnce(String pickerName, time_t alarmTime)
 {
-  initMainMenu(pickerName);
-
-  _pickedYear = "2020";
-  _pickedMonth = "05";
-  _pickedDay = "01";
-  _pickedHour = "12";
-  _pickedMinute = "00";
+  _pickedYear = String(year(alarmTime));
+  _pickedMonth = String(zeropad(month(alarmTime), 2));
+  _pickedDay = String(zeropad(day(alarmTime), 2));
+  _pickedHour = String(zeropad(hour(alarmTime), 2));
+  _pickedMinute = String(zeropad(minute(alarmTime), 2));
 
   _pickerButtons = "up#Ok#Select##down#Back";
   _pickerFont = FreeMonoBold12pt7b;
   _pickerCheckType = CHECK_TYPE_RADIO;
   _pickerCheckButtonName = "Select";
 
-  Serial.println("Zero");
-
   while (true) {
-    switch(_currentScreen) {
-      
-      case PICKER_SCREEN_MAIN_MENU: 
-        
-        Serial.println("One");
-
-        _mainMenu.runOnce();
-
-        Serial.println("Two");
-
-        if (_mainMenu.pickButton() == "Add") {  
-          displayPickerMenu();         
-          if (_mainMenu.getItemSize() > 0) {
-            //More than one item was added to the originally empty main menu - add navigation buttons
-            _mainMenu.buttons(_mainMenuNonEmptyButtons);
-          }
-        } else if (_mainMenu.pickButton() == "Del") {
-          if (_mainMenu.getItemSize() > 0) {
-            _mainMenu.deleteItem(_mainMenu.pick());
-          } else {
-            //The last item was removed - remove navigation buttons
-            _mainMenu.buttons(_mainMenuEmptyButtons);
-          }        
-        } else if (_mainMenu.pickButton() == "Menu") {          
-          Serial.println("Done");
-          return _mainMenu.getCheckedItemName();
-        }
+    String selectedAction = displayPickerMenu(pickerName);
+    if (selectedAction == "Back") {
+      return NULL;
+    } else if (selectedAction == "Ok") {
       break;
-
-      case PICKER_SCREEN_PICKER_MENU:
-        displayPickerMenu();
-      break;    
     }
-    Serial.println("Again");
-  }  
+  }
+
+  return makeTime(_pickedHour.toInt(), _pickedMinute.toInt(), 0, _pickedDay.toInt(), _pickedMonth.toInt(), _pickedYear.toInt());
 }

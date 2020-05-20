@@ -29,6 +29,7 @@ unsigned long _stopwatchStartTimestamp;
 unsigned long _stopwatchElapsedTime = 0;
 
 bool _isAlarmRunning = false;
+time_t _alarmTime = now();
 
 bool _isTimerRunning = false;
 unsigned long _timerStartTimestamp;
@@ -129,6 +130,30 @@ void initHomeScreen()
   }
 }
 
+void checkAndFireAlarm()
+{
+  if (_isAlarmRunning && now() >= _alarmTime) {
+    
+    Serial.println(F("ALARM!!!"));
+    
+    _isAlarmRunning = false;
+
+    // Play the alarm sound
+    M5.Speaker.tone(900, 150);
+    delay(150);
+    M5.Speaker.tone(1000, 150);
+    delay(150);
+    M5.Speaker.tone(1100, 150);
+    delay(150);
+    M5.Speaker.tone(1000, 150);
+    delay(150);
+    M5.Speaker.tone(900, 150);
+
+    // Clear the alarm icon on the screen 
+    M5.Lcd.fillRect(285, 104, 32, 32, ez.theme->background);       
+  }
+}
+
 void displayHomeClock()
 {
   if (timeSet) {
@@ -136,10 +161,11 @@ void displayHomeClock()
       updateTime();
       updateDate();
       refreshClockWidget();
+      checkAndFireAlarm();
     }
 
     if (secondChanged()) {    
-      updateTime();
+      updateTime();      
     } 
   }
 }
@@ -244,13 +270,18 @@ void initAlarmScreen()
 { 
   _currentScreen = SCREEN_ALARM;
   _clockWidgetDisplayed = isClockWidgetDisplayed();
-  
-  DateTimePicker alarmPicker;
-  String pickedDateTime = alarmPicker.runOnce("Alarm");
 
-  //TODO Process the results
-  Serial.print("Returned: ");
-  Serial.println(pickedDateTime);  
+  DateTimePicker alarmPicker;
+  time_t pickedDateTime = alarmPicker.runOnce("Alarm", _alarmTime);
+
+  if (pickedDateTime != NULL) {
+    _isAlarmRunning = true;
+    _alarmTime = pickedDateTime;
+    Serial.println("Picked alarm time: " + dateTime(_alarmTime, "Y-m-d H:i"));
+  } else {
+    _isAlarmRunning = false;
+    _alarmTime = now();    
+  }
 
   // Go back to the Home Screen
   initHomeScreen();
@@ -444,6 +475,7 @@ void setup() {
         Serial.println();
 
         setTime(timerTimestamp);
+        _alarmTime = timerTimestamp;
         Serial.println("RTC based time was set.");
 	    } else {
 		    Serial.println(F("RTC is NOT available."));

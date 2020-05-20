@@ -1,5 +1,6 @@
 #include "Arduino.h"
 #include "M5ez.h"
+#include "ezTime.h"
 
 #define PICKER_SCREEN_MAIN_MENU     9100
 #define PICKER_SCREEN_PICKER_MENU   9200
@@ -11,31 +12,16 @@
 
 class DateTimePicker {
 public:    
-    static String runOnce(String pickerName);
+    static time_t runOnce(String pickerName, time_t alarmTime);
 private:
-    // The currently displayed screen
-    static int _currentScreen;
-
+    static String displayPickerMenu(String pickerName);
+    
     // The currently picked date and time values
     static String _pickedYear;
     static String _pickedMonth;
     static String _pickedDay;
     static String _pickedHour;
     static String _pickedMinute;
-
-    ///////////////
-    // MAIN MENU //
-    ///////////////
-
-    // It will store the picked date and time values - initially empty
-    static ezMenu _mainMenu;
-
-    // No navigation buttons are required on an initially empty main menu
-    static String _mainMenuEmptyButtons;
-    // Navigation buttons are visible on a non-empty main menu
-    static String _mainMenuNonEmptyButtons; 
-
-    static void initMainMenu(String pickerName);
 
     /////////////
     // Pickers //
@@ -56,7 +42,5 @@ private:
     static void displayHourPicker();
     static bool advancedDisplayHourPicker(ezMenu* callingMenu);
     static void displayMinutePicker();
-    static bool advancedDisplayMinutePicker(ezMenu* callingMenu);
-    
-    static void displayPickerMenu();
+    static bool advancedDisplayMinutePicker(ezMenu* callingMenu);  
 };
