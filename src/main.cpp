@@ -8,6 +8,8 @@
 #include "jpgs.h"
 #include "jpgsdark.h"
 
+#include "DateTimePicker.h"
+
 #define SCREEN_HOME       210
 #define SCREEN_STOPWATCH  220
 #define SCREEN_ALARM      230
@@ -243,10 +245,15 @@ void initAlarmScreen()
   _currentScreen = SCREEN_ALARM;
   _clockWidgetDisplayed = isClockWidgetDisplayed();
   
-  ez.screen.clear();
-  ez.header.show("Alarm");
+  DateTimePicker alarmPicker;
+  String pickedDateTime = alarmPicker.runOnce("Alarm");
 
-  ez.buttons.show("# # Menu");
+  //TODO Process the results
+  Serial.print("Returned: ");
+  Serial.println(pickedDateTime);  
+
+  // Go back to the Home Screen
+  initHomeScreen();
 }
 
 //////////////////
