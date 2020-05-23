@@ -7,4 +7,4 @@ M5Stack ESP32 Basic Core based maker watch
 
 ## License
 
-This software is available under [GNU](../master/LICENSE) license.
+This software is available under [GNU General Public License v3.0](../master/LICENSE) license.

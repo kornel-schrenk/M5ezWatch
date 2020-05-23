@@ -16,7 +16,7 @@
 #define SCREEN_TIMER      240
 #define SCREEN_SETTINGS   260
 
-const String VERSION_NUMBER = "0.2.1";
+const String VERSION_NUMBER = "0.2.2";
 
 int _currentScreen = SCREEN_HOME;
 
