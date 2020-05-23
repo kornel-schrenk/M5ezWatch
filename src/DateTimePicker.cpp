@@ -10,6 +10,7 @@
   String DateTimePicker::_pickedDay;
   String DateTimePicker::_pickedHour;
   String DateTimePicker::_pickedMinute;
+  String DateTimePicker::_pickedSecond;
 
   // General picker settings
   String DateTimePicker::_pickerButtons;
@@ -23,7 +24,7 @@
 
 // Year Picker //
 
-void DateTimePicker::displayYearPicker() 
+void DateTimePicker::_displayYearPicker() 
 {  
   ezMenu yearPickerMenu("Year");
 
@@ -54,16 +55,16 @@ void DateTimePicker::displayYearPicker()
   }
 }
 
-bool DateTimePicker::advancedDisplayYearPicker(ezMenu* callingMenu) {
+bool DateTimePicker::_advancedDisplayYearPicker(ezMenu* callingMenu) {
   if (callingMenu->pickButton() != "Ok") {
-    displayYearPicker();
+    _displayYearPicker();
    }
    return true;
 }
 
 // Month Picker //
 
-void DateTimePicker::displayMonthPicker()
+void DateTimePicker::_displayMonthPicker()
 {
   ezMenu monthPickerMenu("Month");
 
@@ -114,16 +115,16 @@ void DateTimePicker::displayMonthPicker()
   }
 }
 
-bool DateTimePicker::advancedDisplayMonthPicker(ezMenu* callingMenu) {
+bool DateTimePicker::_advancedDisplayMonthPicker(ezMenu* callingMenu) {
   if (callingMenu->pickButton() != "Ok") {
-    displayMonthPicker();
+    _displayMonthPicker();
    }
    return true;
 }
 
 // Day Picker //
 
-void DateTimePicker::displayDayPicker()
+void DateTimePicker::_displayDayPicker()
 {
   ezMenu dayPickerMenu("Day");
 
@@ -184,16 +185,16 @@ if (dayPickerMenu.pickButton() == "Ok") {
   }
 }
 
-bool DateTimePicker::advancedDisplayDayPicker(ezMenu* callingMenu) {
+bool DateTimePicker::_advancedDisplayDayPicker(ezMenu* callingMenu) {
   if (callingMenu->pickButton() != "Ok") {
-    displayDayPicker();
+    _displayDayPicker();
    }
    return true;
 }
 
 // Hour Picker //
 
-void DateTimePicker::displayHourPicker()
+void DateTimePicker::_displayHourPicker()
 {
   ezMenu hourPickerMenu("Hour");
 
@@ -241,16 +242,16 @@ void DateTimePicker::displayHourPicker()
   }
 }
 
-bool DateTimePicker::advancedDisplayHourPicker(ezMenu* callingMenu) {
+bool DateTimePicker::_advancedDisplayHourPicker(ezMenu* callingMenu) {
   if (callingMenu->pickButton() != "Ok") {
-    displayHourPicker();
+    _displayHourPicker();
    }
    return true;
 }
 
 // Minute Picker //
 
-void DateTimePicker::displayMinutePicker()
+void DateTimePicker::_displayMinutePicker()
 {
   ezMenu minutePickerMenu("Minute");
 
@@ -334,9 +335,102 @@ void DateTimePicker::displayMinutePicker()
   }
 }
 
-bool DateTimePicker::advancedDisplayMinutePicker(ezMenu* callingMenu) {
+bool DateTimePicker::_advancedDisplayMinutePicker(ezMenu* callingMenu) {
   if (callingMenu->pickButton() != "Ok") {
-    displayMinutePicker();
+    _displayMinutePicker();
+   }
+   return true;
+}
+
+// Minute Picker //
+
+void DateTimePicker::_displaySecondPicker()
+{
+  ezMenu secondPickerMenu("Second");
+
+  secondPickerMenu.buttons(_pickerButtons);
+  secondPickerMenu.txtFont(&_pickerFont);
+  secondPickerMenu.setCheckType(_pickerCheckType);
+  secondPickerMenu.setCheckButtonName(_pickerCheckButtonName);
+  secondPickerMenu.upOnFirst("last|up");
+  secondPickerMenu.downOnLast("first|down");
+
+  secondPickerMenu.addItem("00");
+  secondPickerMenu.addItem("01");
+  secondPickerMenu.addItem("02");
+  secondPickerMenu.addItem("03");
+  secondPickerMenu.addItem("04");
+  secondPickerMenu.addItem("05");
+  secondPickerMenu.addItem("06");
+  secondPickerMenu.addItem("07");
+  secondPickerMenu.addItem("08");
+  secondPickerMenu.addItem("09");
+  secondPickerMenu.addItem("10");
+  secondPickerMenu.addItem("11");
+  secondPickerMenu.addItem("12");
+  secondPickerMenu.addItem("13");
+  secondPickerMenu.addItem("14");
+  secondPickerMenu.addItem("15");
+  secondPickerMenu.addItem("16");
+  secondPickerMenu.addItem("17");
+  secondPickerMenu.addItem("18");
+  secondPickerMenu.addItem("19");
+  secondPickerMenu.addItem("20");
+  secondPickerMenu.addItem("21");
+  secondPickerMenu.addItem("22");
+  secondPickerMenu.addItem("23");
+  secondPickerMenu.addItem("24");
+  secondPickerMenu.addItem("25");
+  secondPickerMenu.addItem("26");
+  secondPickerMenu.addItem("27");
+  secondPickerMenu.addItem("28");
+  secondPickerMenu.addItem("29");
+  secondPickerMenu.addItem("30");
+  secondPickerMenu.addItem("31");
+  secondPickerMenu.addItem("32");
+  secondPickerMenu.addItem("33");
+  secondPickerMenu.addItem("34");
+  secondPickerMenu.addItem("35");
+  secondPickerMenu.addItem("36");
+  secondPickerMenu.addItem("37");
+  secondPickerMenu.addItem("38");
+  secondPickerMenu.addItem("39");
+  secondPickerMenu.addItem("40");
+  secondPickerMenu.addItem("41");
+  secondPickerMenu.addItem("42");
+  secondPickerMenu.addItem("43");
+  secondPickerMenu.addItem("44");
+  secondPickerMenu.addItem("45");
+  secondPickerMenu.addItem("46");
+  secondPickerMenu.addItem("47");
+  secondPickerMenu.addItem("48");
+  secondPickerMenu.addItem("49");
+  secondPickerMenu.addItem("50");
+  secondPickerMenu.addItem("51");
+  secondPickerMenu.addItem("52");
+  secondPickerMenu.addItem("53");
+  secondPickerMenu.addItem("54");
+  secondPickerMenu.addItem("55");
+  secondPickerMenu.addItem("56");
+  secondPickerMenu.addItem("57");
+  secondPickerMenu.addItem("58");
+  secondPickerMenu.addItem("59");
+
+  secondPickerMenu.check(_pickedSecond);
+
+  secondPickerMenu.runOnce();
+  
+  if (secondPickerMenu.pickButton() == "Ok") {           
+    String checkedSecond = secondPickerMenu.getCheckedItemName();
+    if (checkedSecond != "") {
+      _pickedSecond = checkedSecond;
+    } 
+  }
+}
+
+bool DateTimePicker::_advancedDisplaySecondPicker(ezMenu* callingMenu) {
+  if (callingMenu->pickButton() != "Ok") {
+    _displaySecondPicker();
    }
    return true;
 }
@@ -345,7 +439,7 @@ bool DateTimePicker::advancedDisplayMinutePicker(ezMenu* callingMenu) {
 // Picker Menu //
 /////////////////
 
-String DateTimePicker::displayPickerMenu(String pickerName)
+String DateTimePicker::_displayPickerMenu(String pickerName, bool onlyPickTime)
 { 
   ezMenu pickerMenu(pickerName);
 
@@ -357,14 +451,18 @@ String DateTimePicker::displayPickerMenu(String pickerName)
   String dayItemText = "Day:    " + _pickedDay;
   String hourItemText = "Hour:   " + _pickedHour;
   String minuteItemText = "Minute: " + _pickedMinute;
+  String secondItemText = "Second: " + _pickedSecond;
 
   // Advenced functions are required, because the "Ok" button is reserved for saving and "Select" button is used to reach sub-level picker menus
   // In M5ez all non navigation buttons are action buttons 
-  pickerMenu.addItem(yearItemText, NULL, advancedDisplayYearPicker, NULL);
-  pickerMenu.addItem(monthItemText, NULL, advancedDisplayMonthPicker, NULL);
-  pickerMenu.addItem(dayItemText, NULL, advancedDisplayDayPicker, NULL);
-  pickerMenu.addItem(hourItemText, NULL, advancedDisplayHourPicker, NULL);
-  pickerMenu.addItem(minuteItemText, NULL, advancedDisplayMinutePicker, NULL);  
+  if (!onlyPickTime) {
+    pickerMenu.addItem(yearItemText, NULL, _advancedDisplayYearPicker, NULL);
+    pickerMenu.addItem(monthItemText, NULL, _advancedDisplayMonthPicker, NULL);
+    pickerMenu.addItem(dayItemText, NULL, _advancedDisplayDayPicker, NULL);
+  }
+  pickerMenu.addItem(hourItemText, NULL, _advancedDisplayHourPicker, NULL);
+  pickerMenu.addItem(minuteItemText, NULL, _advancedDisplayMinutePicker, NULL);  
+  pickerMenu.addItem(secondItemText, NULL, _advancedDisplaySecondPicker, NULL);  
 
   pickerMenu.runOnce();
  
@@ -376,13 +474,14 @@ String DateTimePicker::displayPickerMenu(String pickerName)
   return "";
 }
 
-time_t DateTimePicker::runOnce(String pickerName, time_t alarmTime)
+time_t DateTimePicker::runOnce(String pickerName, time_t initialTime, bool onlyPickTime)
 {
-  _pickedYear = String(year(alarmTime));
-  _pickedMonth = String(zeropad(month(alarmTime), 2));
-  _pickedDay = String(zeropad(day(alarmTime), 2));
-  _pickedHour = String(zeropad(hour(alarmTime), 2));
-  _pickedMinute = String(zeropad(minute(alarmTime), 2));
+  _pickedYear = String(year(initialTime));
+  _pickedMonth = String(zeropad(month(initialTime), 2));
+  _pickedDay = String(zeropad(day(initialTime), 2));
+  _pickedHour = String(zeropad(hour(initialTime), 2));
+  _pickedMinute = String(zeropad(minute(initialTime), 2));
+  _pickedSecond = String(zeropad(second(initialTime), 2));
 
   _pickerButtons = "up#Ok#Select##down#Back";
   _pickerFont = FreeMonoBold12pt7b;
@@ -390,13 +489,13 @@ time_t DateTimePicker::runOnce(String pickerName, time_t alarmTime)
   _pickerCheckButtonName = "Select";
 
   while (true) {
-    String selectedAction = displayPickerMenu(pickerName);
+    String selectedAction = _displayPickerMenu(pickerName, onlyPickTime);
     if (selectedAction == "Back") {
-      return NULL;
+      return 0;
     } else if (selectedAction == "Ok") {
       break;
     }
   }
 
-  return makeTime(_pickedHour.toInt(), _pickedMinute.toInt(), 0, _pickedDay.toInt(), _pickedMonth.toInt(), _pickedYear.toInt());
+  return makeTime(_pickedHour.toInt(), _pickedMinute.toInt(), _pickedSecond.toInt(), _pickedDay.toInt(), _pickedMonth.toInt(), _pickedYear.toInt());
 }

@@ -16,7 +16,7 @@
 #define SCREEN_TIMER      240
 #define SCREEN_SETTINGS   260
 
-const String VERSION_NUMBER = "0.1.4";
+const String VERSION_NUMBER = "0.2.1";
 
 int _currentScreen = SCREEN_HOME;
 
@@ -34,6 +34,7 @@ time_t _alarmTime = now();
 bool _isTimerRunning = false;
 unsigned long _timerStartTimestamp;
 unsigned long _timerElapsedTime = 0;
+int _timerIntervalHours = 0;
 int _timerIntervalMinutes = 1;
 int _timerIntervalSeconds = 0;
 
@@ -61,113 +62,6 @@ String getTimezoneLocation()
 
 void powerOff() { 
   M5.Power.powerOFF(); 
-}
-
-/////////////////
-// HOME SCREEN //
-/////////////////
-
-void updateTime()
-{    
-    ez.canvas.color(ez.theme->foreground);
-    ez.canvas.font(numonly7seg48);
-    ez.canvas.pos(50, 80);
-    ez.canvas.print(ez.clock.tz.dateTime("H:i:s"));  
-}
-
-void updateDate()
-{
-    String currentDate = ez.clock.tz.dateTime("Y-m-d");
-
-    ez.canvas.color(ez.theme->foreground);
-    ez.canvas.font(sans26);
-    ez.canvas.pos(100, 150);
-    ez.canvas.print(currentDate);
-}
-
-void refreshClockWidget() 
-{
-  //HACK: Refresh the clock widget at the top in every minute    
-  if (_clockWidgetDisplayed) {
-    ez.header.draw("clock");    
-  }   
-}
-
-void initHomeScreen() 
-{  
-  _currentScreen = SCREEN_HOME;
-  _clockWidgetDisplayed = isClockWidgetDisplayed();
-
-  ez.screen.clear();
-  ez.header.show("M5ezWatch");
-  ez.buttons.show("Update # Menu # Power Off");  
-
-  if (ez.theme->name == "Default") {
-    if (_isStopWatchRunning) {
-      M5.Lcd.drawJpg((uint8_t *)stopwatch_jpg_small, (sizeof(stopwatch_jpg_small) / sizeof(stopwatch_jpg_small[0])), 285, 64, 32, 32);   
-    }
-    if (_isAlarmRunning) {
-      M5.Lcd.drawJpg((uint8_t *)alarm_jpg_small, (sizeof(alarm_jpg_small) / sizeof(alarm_jpg_small[0])), 285, 104, 32, 32);
-    }
-    if (_isTimerRunning) {
-      M5.Lcd.drawJpg((uint8_t *)timer_jpg_small, (sizeof(timer_jpg_small) / sizeof(timer_jpg_small[0])), 285, 144, 32, 32);
-    } 
-  } else if (ez.theme->name == "Dark") {
-    if (_isStopWatchRunning) {
-      M5.Lcd.drawJpg((uint8_t *)stopwatch_jpg_small_dark, (sizeof(stopwatch_jpg_small_dark) / sizeof(stopwatch_jpg_small_dark[0])), 285, 64, 32, 32);   
-    }
-    if (_isAlarmRunning) {
-      M5.Lcd.drawJpg((uint8_t *)alarm_jpg_small, (sizeof(alarm_jpg_small_dark) / sizeof(alarm_jpg_small_dark[0])), 285, 104, 32, 32);
-    }
-    if (_isTimerRunning) {
-      M5.Lcd.drawJpg((uint8_t *)timer_jpg_small, (sizeof(timer_jpg_small_dark) / sizeof(timer_jpg_small_dark[0])), 285, 144, 32, 32);
-    } 
-  }    
-
-  if (timeSet) {     
-    updateTime();
-    updateDate();
-  }
-}
-
-void checkAndFireAlarm()
-{
-  if (_isAlarmRunning && now() >= _alarmTime) {
-    
-    Serial.println(F("ALARM!!!"));
-    
-    _isAlarmRunning = false;
-
-    // Play the alarm sound
-    M5.Speaker.tone(900, 150);
-    delay(150);
-    M5.Speaker.tone(1000, 150);
-    delay(150);
-    M5.Speaker.tone(1100, 150);
-    delay(150);
-    M5.Speaker.tone(1000, 150);
-    delay(150);
-    M5.Speaker.tone(900, 150);
-
-    // Clear the alarm icon on the screen 
-    M5.Lcd.fillRect(285, 104, 32, 32, ez.theme->background);       
-  }
-}
-
-void displayHomeClock()
-{
-  if (timeSet) {
-    if (minuteChanged()) {          
-      updateTime();
-      updateDate();
-      refreshClockWidget();
-      checkAndFireAlarm();
-    }
-
-    if (secondChanged()) {    
-      updateTime();      
-    } 
-  }
 }
 
 //////////////////////
@@ -274,7 +168,7 @@ void initAlarmScreen()
   DateTimePicker alarmPicker;
   time_t pickedDateTime = alarmPicker.runOnce("Alarm", _alarmTime);
 
-  if (pickedDateTime != NULL) {
+  if (pickedDateTime != 0) {
     _isAlarmRunning = true;
     _alarmTime = pickedDateTime;
     Serial.println("Picked alarm time: " + dateTime(_alarmTime, "Y-m-d H:i"));
@@ -282,9 +176,30 @@ void initAlarmScreen()
     _isAlarmRunning = false;
     _alarmTime = now();    
   }
+}
 
-  // Go back to the Home Screen
-  initHomeScreen();
+void checkAndFireAlarm()
+{
+  if (_isAlarmRunning && now() >= _alarmTime) {
+    
+    Serial.println(F("ALARM!!!"));
+    
+    _isAlarmRunning = false;
+
+    // Play the alarm sound
+    M5.Speaker.tone(900, 150);
+    delay(150);
+    M5.Speaker.tone(1000, 150);
+    delay(150);
+    M5.Speaker.tone(1100, 150);
+    delay(150);
+    M5.Speaker.tone(1000, 150);
+    delay(150);
+    M5.Speaker.tone(900, 150);
+
+    // Clear the alarm icon on the screen 
+    M5.Lcd.fillRect(285, 104, 32, 32, ez.theme->background);       
+  }
 }
 
 //////////////////
@@ -305,17 +220,27 @@ void displayZeroTimerTime()
   M5.Lcd.progressBar(10, 100, 300, 25, 0);
 }
 
-void checkAndFireTimer(int elapsedMinutes, int elapsedSeconds)
+void checkAndFireTimer()
 {
-  if (_isTimerRunning && elapsedMinutes == _timerIntervalMinutes && elapsedSeconds == _timerIntervalSeconds) {
-    // Play a buzz
-    M5.Speaker.tone(900, 300);
+  if (_isTimerRunning) {
+    unsigned long elapsedTimeInSeconds = now() - _timerStartTimestamp;
 
-    // Restart the timer
-    _timerStartTimestamp = now();
+    int elapsedHours = elapsedTimeInSeconds / 3600;
+    int elapsedMinutes = elapsedTimeInSeconds % 3600 / 60;
+    int elapsedSeconds = elapsedTimeInSeconds % 3600 % 60;
 
-    // Display zero time
-    displayZeroTimerTime();
+    if (elapsedHours == _timerIntervalHours && elapsedMinutes == _timerIntervalMinutes && elapsedSeconds == _timerIntervalSeconds) {
+      // Play a buzz
+      M5.Speaker.tone(900, 300);
+
+      // Restart the timer
+      _timerStartTimestamp = now();
+
+      if (_currentScreen == SCREEN_TIMER) {
+        // Display zero time
+        displayZeroTimerTime();
+      }
+    }
   }
 }
 
@@ -323,23 +248,26 @@ void displayElapsedTimerTime()
 {
   unsigned long elapsedTimeInSeconds = now() - _timerStartTimestamp;
 
-  int minutes = elapsedTimeInSeconds / 60;
-  int seconds = elapsedTimeInSeconds % 60;
+  int hours = elapsedTimeInSeconds / 3600;
+  int minutes = elapsedTimeInSeconds % 3600 / 60;
+  int seconds = elapsedTimeInSeconds % 3600 % 60;
 
   ez.canvas.color(ez.theme->foreground);
   ez.canvas.font(numonly7seg48);
   ez.canvas.pos(90, 150);    
 
+  ez.canvas.print(zeropad(hours, 2));
+  ez.canvas.print(":");
   ez.canvas.print(zeropad(minutes, 2));
   ez.canvas.print(":");
   ez.canvas.print(zeropad(seconds, 2));
 
   // Calculate elapsed time %
-  int timerIntervalInSeconds = _timerIntervalMinutes * 60 + _timerIntervalSeconds;
+  int timerIntervalInSeconds = _timerIntervalHours * 3600 + _timerIntervalMinutes * 60 + _timerIntervalSeconds;
   uint8_t elapsedPercentage = (elapsedTimeInSeconds * 100) / timerIntervalInSeconds;
   M5.Lcd.progressBar(10, 100, 300, 25, elapsedPercentage);
 
-  checkAndFireTimer(minutes, seconds);
+  checkAndFireTimer();
 }
 
 void initTimerScreen()
@@ -356,6 +284,8 @@ void initTimerScreen()
   ez.canvas.pos(20, 50);
   ez.canvas.print("Interval: ");
   ez.canvas.pos(200, 50);
+  ez.canvas.print(zeropad(_timerIntervalHours, 2));
+  ez.canvas.print(":");
   ez.canvas.print(zeropad(_timerIntervalMinutes, 2));  
   ez.canvas.print(":");
   ez.canvas.print(zeropad(_timerIntervalSeconds, 2));   
@@ -386,6 +316,90 @@ void startTimer()
 void stopTimer()
 {
   _isTimerRunning = false;
+}
+
+/////////////////
+// HOME SCREEN //
+/////////////////
+
+void updateTime()
+{    
+    ez.canvas.color(ez.theme->foreground);
+    ez.canvas.font(numonly7seg48);
+    ez.canvas.pos(50, 80);
+    ez.canvas.print(ez.clock.tz.dateTime("H:i:s"));  
+}
+
+void updateDate()
+{
+    String currentDate = ez.clock.tz.dateTime("Y-m-d");
+
+    ez.canvas.color(ez.theme->foreground);
+    ez.canvas.font(sans26);
+    ez.canvas.pos(100, 150);
+    ez.canvas.print(currentDate);
+}
+
+void refreshClockWidget() 
+{
+  //HACK: Refresh the clock widget at the top in every minute    
+  if (_clockWidgetDisplayed) {
+    ez.header.draw("clock");    
+  }   
+}
+
+void initHomeScreen() 
+{  
+  _currentScreen = SCREEN_HOME;
+  _clockWidgetDisplayed = isClockWidgetDisplayed();
+
+  ez.screen.clear();
+  ez.header.show("M5ezWatch");
+  ez.buttons.show("Update # Menu # Power Off");  
+
+  if (ez.theme->name == "Default") {
+    if (_isStopWatchRunning) {
+      M5.Lcd.drawJpg((uint8_t *)stopwatch_jpg_small, (sizeof(stopwatch_jpg_small) / sizeof(stopwatch_jpg_small[0])), 285, 64, 32, 32);   
+    }
+    if (_isAlarmRunning) {
+      M5.Lcd.drawJpg((uint8_t *)alarm_jpg_small, (sizeof(alarm_jpg_small) / sizeof(alarm_jpg_small[0])), 285, 104, 32, 32);
+    }
+    if (_isTimerRunning) {
+      M5.Lcd.drawJpg((uint8_t *)timer_jpg_small, (sizeof(timer_jpg_small) / sizeof(timer_jpg_small[0])), 285, 144, 32, 32);
+    } 
+  } else if (ez.theme->name == "Dark") {
+    if (_isStopWatchRunning) {
+      M5.Lcd.drawJpg((uint8_t *)stopwatch_jpg_small_dark, (sizeof(stopwatch_jpg_small_dark) / sizeof(stopwatch_jpg_small_dark[0])), 285, 64, 32, 32);   
+    }
+    if (_isAlarmRunning) {
+      M5.Lcd.drawJpg((uint8_t *)alarm_jpg_small, (sizeof(alarm_jpg_small_dark) / sizeof(alarm_jpg_small_dark[0])), 285, 104, 32, 32);
+    }
+    if (_isTimerRunning) {
+      M5.Lcd.drawJpg((uint8_t *)timer_jpg_small, (sizeof(timer_jpg_small_dark) / sizeof(timer_jpg_small_dark[0])), 285, 144, 32, 32);
+    } 
+  }    
+
+  if (timeSet) {     
+    updateTime();
+    updateDate();
+  }
+}
+
+void displayHomeClock()
+{
+  if (timeSet) {
+    if (minuteChanged()) {          
+      updateTime();
+      updateDate();
+      refreshClockWidget();
+      checkAndFireAlarm();      
+    }
+
+    if (secondChanged()) {    
+      updateTime();
+      checkAndFireTimer();      
+    } 
+  }
 }
 
 ///////////////
@@ -488,14 +502,14 @@ void setup() {
 
 void loop() {    
   String buttonPressed = ez.buttons.poll();
-  if (buttonPressed  == "Menu") {              
+  if (buttonPressed  == "Menu") {
     back_to_menu:
-    int16_t selectedIndex = initMainMenu().runOnce();                   
-    switch (selectedIndex) {      
+    switch (initMainMenu().runOnce()) {      
       case 1: initStopwatchScreen(); break;  //Stopwatch screen
-      case 2: initAlarmScreen(); break;      //Alarm screen
+      case 2: initAlarmScreen(); goto back_to_menu; break;      //Alarm screen
       case 3: initTimerScreen(); break;      
-      case 4: ez.settings.menuObj.runOnce(); Serial.println("Goto"); goto back_to_menu; break;     //Settings screen
+      case 4: ez.settings.menuObj.runOnce(); Serial.println("Goto"); initHomeScreen(); goto back_to_menu; break;     //Settings screen
+      case 5: ez.msgBox("About",	"Smart watch for M5Stack ESP32 Core | Version: " + VERSION_NUMBER + "| Author: kornel@schrenk.hu", "Menu"); goto back_to_menu; break;
       default: initHomeScreen(); break; 
     }     
   } else if (buttonPressed != "") {    
@@ -569,7 +583,23 @@ void loop() {
           stopTimer();
           delay(300);
           ez.buttons.show("Start # Interval # Menu");
-        }	
+        }	else if (buttonPressed == "Interval") {
+          time_t initialTime = now();
+          initialTime = makeTime(_timerIntervalHours, _timerIntervalMinutes, _timerIntervalSeconds, day(initialTime), month(initialTime), year(initialTime));
+          Serial.println("Initial interval time: " + dateTime(initialTime, "Y-m-d H:i:s"));
+
+          DateTimePicker intervalPicker;
+          time_t pickedTime = intervalPicker.runOnce("Interval", initialTime, true);
+
+          if (pickedTime != 0) {        
+            _timerIntervalHours = hour(pickedTime);
+            _timerIntervalMinutes = minute(pickedTime);
+            _timerIntervalSeconds = second(pickedTime);
+
+            Serial.println("Picked interval time: " + dateTime(pickedTime, "Y-m-d H:i:s"));
+          }
+          initTimerScreen();
+        }
         break;
       case SCREEN_SETTINGS:			
         break;
