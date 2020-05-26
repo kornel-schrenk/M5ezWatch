@@ -16,13 +16,15 @@
 #define SCREEN_TIMER      240
 #define SCREEN_SETTINGS   260
 
-const String VERSION_NUMBER = "0.2.2";
+RTC_DS1307 rtc;
+
+const String VERSION_NUMBER = "0.2.3";
 
 int _currentScreen = SCREEN_HOME;
 
 bool _clockWidgetDisplayed = false;
 
-RTC_DS1307 rtc;
+int16_t _lastPickedMainMenuIndex = 1;
 
 bool _isStopWatchRunning = false;
 unsigned long _stopwatchStartTimestamp;
@@ -504,11 +506,16 @@ void loop() {
   String buttonPressed = ez.buttons.poll();
   if (buttonPressed  == "Menu") {
     back_to_menu:
-    switch (initMainMenu().runOnce()) {      
-      case 1: initStopwatchScreen(); break;  //Stopwatch screen
-      case 2: initAlarmScreen(); goto back_to_menu; break;      //Alarm screen
-      case 3: initTimerScreen(); break;      
-      case 4: ez.settings.menuObj.runOnce(); Serial.println("Goto"); initHomeScreen(); goto back_to_menu; break;     //Settings screen
+    ezMenu mainMenu = initMainMenu();
+    // Set the menu selection based on the last visited menu item
+    mainMenu.pickItem(_lastPickedMainMenuIndex - 1);    
+    // Run the stuff behind the menu item and return with its index + 1
+    _lastPickedMainMenuIndex = mainMenu.runOnce();    
+    switch (_lastPickedMainMenuIndex) {      
+      case 1: initStopwatchScreen(); break;
+      case 2: initAlarmScreen(); goto back_to_menu; break;
+      case 3: initTimerScreen(); break;  
+      case 4: ez.settings.menuObj.runOnce(); goto back_to_menu; break;
       case 5: ez.msgBox("About",	"Smart watch for M5Stack ESP32 Core | Version: " + VERSION_NUMBER + "| Author: kornel@schrenk.hu", "Menu"); goto back_to_menu; break;
       default: initHomeScreen(); break; 
     }     

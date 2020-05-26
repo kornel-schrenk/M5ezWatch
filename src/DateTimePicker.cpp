@@ -443,7 +443,7 @@ String DateTimePicker::_displayPickerMenu(String pickerName, bool onlyPickTime)
 { 
   ezMenu pickerMenu(pickerName);
 
-  pickerMenu.buttons("up#Ok|Set#Select##down#Back|Clear"); 
+  pickerMenu.buttons("up#Ok|Set#Select##down#Back|Menu"); 
   pickerMenu.txtFont(&FreeMonoBold12pt7b); 
 
   String yearItemText = "Year:   " + _pickedYear; 
