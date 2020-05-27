@@ -411,6 +411,7 @@ void displayHomeClock()
 ezMenu initMainMenu()
 {
   ezMenu mainMenu = ezMenu(true);
+  mainMenu.buttons("left # Select # right");
 
   //If the image is 96x96 px
   mainMenu.imgFromTop(72);
@@ -424,7 +425,7 @@ ezMenu initMainMenu()
     mainMenu.addItem(stopwatch_jpg, "Stopwatch");
     mainMenu.addItem(alarm_jpg, "Alarm");
     mainMenu.addItem(timer_jpg, "Timer");
-    mainMenu.addItem(settings_jpg, "Settings", ez.settings.menu);
+    mainMenu.addItem(settings_jpg, "Settings");
     mainMenu.addItem(about_jpg, "About");
     mainMenu.addItem(back_jpg, "Back");
   } else if (ez.theme->name == "Dark") {
@@ -435,7 +436,7 @@ ezMenu initMainMenu()
     mainMenu.addItem(stopwatch_jpg_dark, "Stopwatch");
     mainMenu.addItem(alarm_jpg_dark, "Alarm");
     mainMenu.addItem(timer_jpg_dark, "Timer");
-    mainMenu.addItem(settings_jpg_dark, "Settings", ez.settings.menu);
+    mainMenu.addItem(settings_jpg_dark, "Settings");
     mainMenu.addItem(about_jpg_dark, "About");
     mainMenu.addItem(back_jpg_dark, "Back");
   }
@@ -502,22 +503,26 @@ void setup() {
   initHomeScreen();  
 }
 
+bool _backToMenu = false;
+
 void loop() {    
-  String buttonPressed = ez.buttons.poll();
-  if (buttonPressed  == "Menu") {
-    back_to_menu:
+  String buttonPressed = "";
+  if (!_backToMenu) {
+    buttonPressed = ez.buttons.poll();
+  }
+  if (_backToMenu || buttonPressed  == "Menu") {
     ezMenu mainMenu = initMainMenu();
     // Set the menu selection based on the last visited menu item
     mainMenu.pickItem(_lastPickedMainMenuIndex - 1);    
     // Run the stuff behind the menu item and return with its index + 1
     _lastPickedMainMenuIndex = mainMenu.runOnce();    
     switch (_lastPickedMainMenuIndex) {      
-      case 1: initStopwatchScreen(); break;
-      case 2: initAlarmScreen(); goto back_to_menu; break;
-      case 3: initTimerScreen(); break;  
-      case 4: ez.settings.menuObj.runOnce(); goto back_to_menu; break;
-      case 5: ez.msgBox("About",	"Smart watch for M5Stack ESP32 Core | Version: " + VERSION_NUMBER + "| Author: kornel@schrenk.hu", "Menu"); goto back_to_menu; break;
-      default: initHomeScreen(); break; 
+      case 0: initHomeScreen(); _backToMenu = false; break; 
+      case 1: initStopwatchScreen(); _backToMenu = false; break;
+      case 2: initAlarmScreen(); _backToMenu = true; break;
+      case 3: initTimerScreen(); _backToMenu = false; break;  
+      case 4: ez.settings.menuObj.runOnce(); _backToMenu = true; break;
+      case 5: ez.msgBox("About",	"Smart watch for M5Stack ESP32 Core | Version: " + VERSION_NUMBER + "| Author: kornel@schrenk.hu", "Menu"); _backToMenu = true; break;      
     }     
   } else if (buttonPressed != "") {    
     //Handle button press on the current screen
