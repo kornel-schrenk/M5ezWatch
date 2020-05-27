@@ -410,7 +410,7 @@ void displayHomeClock()
 
 ezMenu initMainMenu()
 {
-  ezMenu mainMenu;
+  ezMenu mainMenu = ezMenu(true);
 
   //If the image is 96x96 px
   mainMenu.imgFromTop(72);
