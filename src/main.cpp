@@ -9,6 +9,7 @@
 #include "jpgsdark.h"
 
 #include "DateTimePicker.h"
+#include "SettingsPicker.h"
 
 #define SCREEN_HOME       210
 #define SCREEN_STOPWATCH  220
@@ -18,7 +19,7 @@
 
 RTC_DS1307 rtc;
 
-const String VERSION_NUMBER = "0.2.3";
+const String VERSION_NUMBER = "0.3.0";
 
 int _currentScreen = SCREEN_HOME;
 
@@ -320,6 +321,19 @@ void stopTimer()
   _isTimerRunning = false;
 }
 
+//////////////
+// SETTINGS //
+//////////////
+
+void initSettingsScreen() 
+{ 
+  _currentScreen = SCREEN_SETTINGS;
+  _clockWidgetDisplayed = isClockWidgetDisplayed();
+
+  SettingsPicker settingsPicker;
+  settingsPicker.runOnce("Settings");
+}
+
 /////////////////
 // HOME SCREEN //
 /////////////////
@@ -410,7 +424,7 @@ void displayHomeClock()
 
 ezMenu initMainMenu()
 {
-  ezMenu mainMenu = ezMenu(true);
+  ezMenu mainMenu = ezMenu("", true);
   mainMenu.buttons("left # Select # right");
 
   //If the image is 96x96 px
@@ -465,7 +479,7 @@ void setup() {
   Serial.println("\n");
 
   //Disable automatic updates on the NTP server.
-  //The update needs several seconds to execute, which makes the seconds counter stop until the update
+  //The update needs several seconds to execute, which makes the seconds counter freeze until the update
   setInterval(0);
 
   if (timeStatus() == timeNotSet || timeStatus() == timeNeedsSync) 
@@ -498,7 +512,7 @@ void setup() {
 		    Serial.println(F("RTC is NOT available."));
         // No clock will be displayed - update has to be done manually with the Update button        
 	    }
-  }
+  }    
 
   initHomeScreen();  
 }
@@ -521,7 +535,12 @@ void loop() {
       case 1: initStopwatchScreen(); _backToMenu = false; break;
       case 2: initAlarmScreen(); _backToMenu = true; break;
       case 3: initTimerScreen(); _backToMenu = false; break;  
-      case 4: ez.settings.menuObj.runOnce(); _backToMenu = true; break;
+      case 4: 
+        initSettingsScreen();
+        // ez.settings.menuObj.buttons("up##Select##down#Back|Menu");
+        // ez.settings.menuObj.runOnce(); 
+        _backToMenu = true; 
+        break;
       case 5: ez.msgBox("About",	"Smart watch for M5Stack ESP32 Core | Version: " + VERSION_NUMBER + "| Author: kornel@schrenk.hu", "Menu"); _backToMenu = true; break;      
     }     
   } else if (buttonPressed != "") {    

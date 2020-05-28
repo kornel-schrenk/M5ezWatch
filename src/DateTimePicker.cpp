@@ -453,7 +453,7 @@ String DateTimePicker::_displayPickerMenu(String pickerName, bool onlyPickTime)
   String minuteItemText = "Minute: " + _pickedMinute;
   String secondItemText = "Second: " + _pickedSecond;
 
-  // Advenced functions are required, because the "Ok" button is reserved for saving and "Select" button is used to reach sub-level picker menus
+  // Advanced functions are required, because the "Ok" button is reserved for saving and "Select" button is used to reach sub-level picker menus
   // In M5ez all non navigation buttons are action buttons 
   if (!onlyPickTime) {
     pickerMenu.addItem(yearItemText, NULL, _advancedDisplayYearPicker, NULL);
