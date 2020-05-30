@@ -19,7 +19,7 @@
 
 RTC_DS1307 rtc;
 
-const String VERSION_NUMBER = "0.3.2";
+const String VERSION_NUMBER = "0.4.0";
 
 int _currentScreen = SCREEN_HOME;
 
@@ -348,7 +348,12 @@ void updateTime()
     ez.canvas.color(ez.theme->foreground);
     ez.canvas.font(numonly7seg48);
     ez.canvas.pos(50, 80);
-    ez.canvas.print(ez.clock.tz.dateTime("H:i:s"));  
+
+    if (ez.clock.isClockFormat12()) {      
+      ez.canvas.print(ez.clock.tz.dateTime("h:i:s"));
+    } else {
+      ez.canvas.print(ez.clock.tz.dateTime("H:i:s"));  
+    }    
 }
 
 void updateDate()
@@ -359,6 +364,14 @@ void updateDate()
     ez.canvas.font(sans26);
     ez.canvas.pos(100, 150);
     ez.canvas.print(currentDate);
+}
+
+void updateAmPm()
+{
+  if (ez.clock.isClockFormat12() && ez.clock.isAmPmIndicatorDisplayed()) {
+    ez.canvas.pos(272, 108);
+    ez.canvas.print(ez.clock.tz.dateTime("A"));
+  }
 }
 
 void refreshClockWidget() 
@@ -403,6 +416,7 @@ void initHomeScreen()
   if (timeSet) {     
     updateTime();
     updateDate();
+    updateAmPm();
   }
 }
 
@@ -412,8 +426,9 @@ void displayHomeClock()
     if (minuteChanged()) {          
       updateTime();
       updateDate();
+      updateAmPm();
       refreshClockWidget();
-      checkAndFireAlarm();      
+      checkAndFireAlarm();     
     }
 
     if (secondChanged()) {    
