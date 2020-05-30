@@ -19,7 +19,7 @@
 
 RTC_DS1307 rtc;
 
-const String VERSION_NUMBER = "0.3.1";
+const String VERSION_NUMBER = "0.3.2";
 
 int _currentScreen = SCREEN_HOME;
 

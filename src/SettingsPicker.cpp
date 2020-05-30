@@ -111,15 +111,12 @@ void SettingsPicker::_displayThemePicker()
 {
     String originalThemeName = ez.theme->name;
 
-    Serial.println("Constructor normal.");
     ezMenu themePickerMenu("Theme");
 
     themePickerMenu.buttons(_pickerButtons);
     themePickerMenu.txtFont(ez.theme -> menu_small_font);
     themePickerMenu.setCheckType(_pickerCheckType);
     themePickerMenu.setCheckButtonName(_pickerCheckButtonName);
-    themePickerMenu.upOnFirst("last|up");
-    themePickerMenu.downOnLast("first|down");
 
     for (uint8_t n = 0; n < ez.themes.size(); n++)
     {
@@ -216,6 +213,15 @@ void SettingsPicker::runOnce(String pickerName)
     _pickerFont = FreeMonoBold12pt7b;
     _pickerCheckType = CHECK_TPYE_NONE;
     _pickerCheckButtonName = "Select";
+
+    ez.battery.setMenuButtons(_pickerButtons);
+    ez.battery.setMenuHeader("Battery");
+
+    ez.clock.setMenuButtons(_pickerButtons);
+    ez.clock.setMenuHeader("Clock");
+
+    ez.wifi.setMenuButtons(_pickerButtons);
+    ez.wifi.setMenuHeader("Wifi");
 
     while (true)
     {
