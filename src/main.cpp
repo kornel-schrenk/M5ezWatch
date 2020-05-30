@@ -19,7 +19,7 @@
 
 RTC_DS1307 rtc;
 
-const String VERSION_NUMBER = "0.4.0";
+const String VERSION_NUMBER = "0.4.1";
 
 int _currentScreen = SCREEN_HOME;
 
@@ -396,7 +396,11 @@ void initHomeScreen()
       M5.Lcd.drawJpg((uint8_t *)stopwatch_jpg_small, (sizeof(stopwatch_jpg_small) / sizeof(stopwatch_jpg_small[0])), 285, 64, 32, 32);   
     }
     if (_isAlarmRunning) {
-      M5.Lcd.drawJpg((uint8_t *)alarm_jpg_small, (sizeof(alarm_jpg_small) / sizeof(alarm_jpg_small[0])), 285, 104, 32, 32);
+      if (!ez.clock.isClockFormat12() || !ez.clock.isAmPmIndicatorDisplayed()) {
+        M5.Lcd.drawJpg((uint8_t *)alarm_jpg_small, (sizeof(alarm_jpg_small) / sizeof(alarm_jpg_small[0])), 285, 104, 32, 32);
+      } else {
+        M5.Lcd.drawJpg((uint8_t *)alarm_jpg_small, (sizeof(alarm_jpg_small) / sizeof(alarm_jpg_small[0])), 285, 184, 32, 32);
+      }  
     }
     if (_isTimerRunning) {
       M5.Lcd.drawJpg((uint8_t *)timer_jpg_small, (sizeof(timer_jpg_small) / sizeof(timer_jpg_small[0])), 285, 144, 32, 32);
@@ -406,7 +410,11 @@ void initHomeScreen()
       M5.Lcd.drawJpg((uint8_t *)stopwatch_jpg_small_dark, (sizeof(stopwatch_jpg_small_dark) / sizeof(stopwatch_jpg_small_dark[0])), 285, 64, 32, 32);   
     }
     if (_isAlarmRunning) {
-      M5.Lcd.drawJpg((uint8_t *)alarm_jpg_small_dark, (sizeof(alarm_jpg_small_dark) / sizeof(alarm_jpg_small_dark[0])), 285, 104, 32, 32);
+      if (!ez.clock.isClockFormat12() || !ez.clock.isAmPmIndicatorDisplayed()) {
+        M5.Lcd.drawJpg((uint8_t *)alarm_jpg_small_dark, (sizeof(alarm_jpg_small_dark) / sizeof(alarm_jpg_small_dark[0])), 285, 104, 32, 32);
+      } else {
+        M5.Lcd.drawJpg((uint8_t *)alarm_jpg_small_dark, (sizeof(alarm_jpg_small_dark) / sizeof(alarm_jpg_small_dark[0])), 285, 184, 32, 32);
+      }
     }
     if (_isTimerRunning) {
       M5.Lcd.drawJpg((uint8_t *)timer_jpg_small_dark, (sizeof(timer_jpg_small_dark) / sizeof(timer_jpg_small_dark[0])), 285, 144, 32, 32);
