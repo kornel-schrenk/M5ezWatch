@@ -169,15 +169,20 @@ void initAlarmScreen()
   _clockWidgetDisplayed = isClockWidgetDisplayed();
 
   DateTimePicker alarmPicker;
-  time_t pickedDateTime = alarmPicker.runOnce("Alarm", _alarmTime);
+  time_t pickedDateTime = alarmPicker.runOnce("Alarm", _alarmTime, _isAlarmRunning);
 
-  if (pickedDateTime != 0) {
+  if (pickedDateTime == 0) { // Back pressed
+    if (_isAlarmRunning) {
+      ez.msgBox("Not Alarmed", dateTime(_alarmTime, "Y-m-d H:i") + "||was cancelled.", "Ok");
+    }
+    _isAlarmRunning = false;
+    _alarmTime = now();  
+  }  else if (pickedDateTime <= now()) {
+    ez.msgBox("Error", dateTime(pickedDateTime, "Y-m-d H:i") + "||is in the past!", "Ok");    
+  } else {
     _isAlarmRunning = true;
     _alarmTime = pickedDateTime;
-    Serial.println("Picked alarm time: " + dateTime(_alarmTime, "Y-m-d H:i"));
-  } else {
-    _isAlarmRunning = false;
-    _alarmTime = now();    
+    ez.msgBox("Alarmed", dateTime(_alarmTime, "Y-m-d H:i") + "||was set.", "Ok");
   }
 }
 

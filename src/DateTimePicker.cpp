@@ -439,11 +439,15 @@ bool DateTimePicker::_advancedDisplaySecondPicker(ezMenu* callingMenu) {
 // Picker Menu //
 /////////////////
 
-String DateTimePicker::_displayPickerMenu(String pickerName, bool onlyPickTime)
+String DateTimePicker::_displayPickerMenu(String pickerName, bool displayCancel, bool onlyPickTime)
 { 
   ezMenu pickerMenu(pickerName);
 
-  pickerMenu.buttons("up#Ok|Set#Select##down#Back|Menu"); 
+  if (displayCancel) {
+    pickerMenu.buttons("up#Ok|Set#Select##down#Back|Cancel"); 
+  } else {
+    pickerMenu.buttons("up#Ok|Set#Select##down#Back|Menu"); 
+  }  
   pickerMenu.txtFont(&FreeMonoBold12pt7b); 
 
   String yearItemText = "Year:   " + _pickedYear; 
@@ -474,7 +478,7 @@ String DateTimePicker::_displayPickerMenu(String pickerName, bool onlyPickTime)
   return "";
 }
 
-time_t DateTimePicker::runOnce(String pickerName, time_t initialTime, bool onlyPickTime)
+time_t DateTimePicker::runOnce(String pickerName, time_t initialTime, bool displayCancel, bool onlyPickTime)
 {
   _pickedYear = String(year(initialTime));
   _pickedMonth = String(zeropad(month(initialTime), 2));
@@ -489,7 +493,7 @@ time_t DateTimePicker::runOnce(String pickerName, time_t initialTime, bool onlyP
   _pickerCheckButtonName = "Select";
 
   while (true) {
-    String selectedAction = _displayPickerMenu(pickerName, onlyPickTime);
+    String selectedAction = _displayPickerMenu(pickerName, displayCancel, onlyPickTime);
     if (selectedAction == "Back") {
       return 0;
     } else if (selectedAction == "Ok") {
