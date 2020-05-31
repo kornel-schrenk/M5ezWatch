@@ -19,7 +19,7 @@
 
 RTC_DS1307 rtc;
 
-const String VERSION_NUMBER = "0.4.1";
+const String VERSION_NUMBER = "0.4.2";
 
 int _currentScreen = SCREEN_HOME;
 
@@ -574,20 +574,18 @@ void loop() {
   } else if (buttonPressed != "") {    
     //Handle button press on the current screen
     switch (_currentScreen) {
-      case SCREEN_HOME:		      
-         if (buttonPressed  == "Update") {
-          ez.buttons.show("$Update # Menu # Power Off"); 
-          updateNTP();        
-          if (timeSet) {
+      case SCREEN_HOME:
+        if (buttonPressed == "Update")
+        {
+          ez.buttons.show("$Update # Menu # Power Off");
+          updateNTP();
+          if (timeStatus() == timeSet)
+          {
             //Update timezone based on Preferences
             String storedTimezone = getTimezoneLocation();
             Serial.println("Stored timezone: " + storedTimezone);
             ez.clock.tz.setLocation(storedTimezone);
-            Serial.println("New timezone was set to " + storedTimezone);
-
-            updateTime();
-            updateDate();
-            refreshClockWidget();
+            Serial.println("New timezone was set to " + storedTimezone);           
 
             //Update the RTC based time
             DateTime rtcDateTime = DateTime(ez.clock.tz.now());
@@ -605,9 +603,15 @@ void loop() {
             Serial.print(':');
             Serial.print(rtcDateTime.second(), DEC);
             Serial.println();
-          }       
-          ez.buttons.show("Update # Menu # Power Off");  
-        } else if (buttonPressed  == "Power Off") {
+
+            ez.msgBox("Updated", dateTime(ez.clock.tz.now(), "Y-m-d H:i:s") + "||was set.", "Ok");            
+          } else {
+            ez.msgBox("Error", "Time update failed.", "Ok");
+          }
+          initHomeScreen();
+        }
+        else if (buttonPressed == "Power Off")
+        {
           powerOff();
         }
         break;
