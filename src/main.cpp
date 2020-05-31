@@ -19,7 +19,7 @@
 
 RTC_DS1307 rtc;
 
-const String VERSION_NUMBER = "0.4.2";
+const String VERSION_NUMBER = "0.4.3";
 
 int _currentScreen = SCREEN_HOME;
 
@@ -41,6 +41,8 @@ int _timerIntervalHours = 0;
 int _timerIntervalMinutes = 1;
 int _timerIntervalSeconds = 0;
 
+bool _isMinimalModeActive = false;
+
 /////////////////////
 // Utility methods //
 /////////////////////
@@ -61,10 +63,6 @@ String getTimezoneLocation()
 	String savedTimezone = prefs.getString("timezone", "GeoIP");
   prefs.end();
   return savedTimezone;
-}
-
-void powerOff() { 
-  M5.Power.powerOFF(); 
 }
 
 //////////////////////
@@ -389,7 +387,7 @@ void initHomeScreen()
 
   ez.screen.clear();
   ez.header.show("M5ezWatch");
-  ez.buttons.show("Update # Menu # Power Off");  
+  ez.buttons.show("Update # Menu # Minimal");  
 
   if (ez.theme->name == "Default") {
     if (_isStopWatchRunning) {
@@ -551,6 +549,9 @@ void loop() {
   String buttonPressed = "";
   if (!_backToMenu) {
     buttonPressed = ez.buttons.poll();
+    if (M5.BtnC.wasPressed() && _isMinimalModeActive) {      
+      initHomeScreen();    
+    }
   }
   if (_backToMenu || buttonPressed  == "Menu") {
     ezMenu mainMenu = initMainMenu();
@@ -577,7 +578,7 @@ void loop() {
       case SCREEN_HOME:
         if (buttonPressed == "Update")
         {
-          ez.buttons.show("$Update # Menu # Power Off");
+          ez.buttons.show("$Update # Menu # Minimal");
           updateNTP();
           if (timeStatus() == timeSet)
           {
@@ -610,9 +611,16 @@ void loop() {
           }
           initHomeScreen();
         }
-        else if (buttonPressed == "Power Off")
+        else if (buttonPressed == "Minimal")
         {
-          powerOff();
+          if (!_isMinimalModeActive) {
+            _isMinimalModeActive = true;
+            ez.screen.clear();
+            updateTime();
+            updateDate();
+          } else {
+            _isMinimalModeActive = false;
+          }         
         }
         break;
       case SCREEN_STOPWATCH:
