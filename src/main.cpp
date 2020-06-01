@@ -5,11 +5,11 @@
 #include "Preferences.h"
 #include "RTClib.h"
 
-#include "jpgs.h"
-#include "jpgsdark.h"
+#include "images/jpgs.h"
+#include "images/jpgsdark.h"
 
-#include "DateTimePicker.h"
-#include "SettingsPicker.h"
+#include "pickers/DateTimePicker.h"
+#include "pickers/SettingsPicker.h"
 
 #define SCREEN_HOME       210
 #define SCREEN_STOPWATCH  220
@@ -19,7 +19,7 @@
 
 RTC_DS1307 rtc;
 
-const String VERSION_NUMBER = "0.4.3";
+const String VERSION_NUMBER = "0.5.0";
 
 int _currentScreen = SCREEN_HOME;
 
