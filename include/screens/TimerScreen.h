@@ -8,11 +8,14 @@
 class TimerScreen {
 
     public:
-        void displayZeroTimerTime();
-        void checkAndFireTimer(int currentScreen);
-        void displayElapsedTimerTime();
         void initTimerScreen();
         void displayTimer();
+
+        void displayZeroTimerTime();
+        void displayElapsedTimerTime();
+
+        void checkAndFireTimer(int currentScreen);
+                        
         void startTimer();
         void stopTimer();
         bool isRunning();
@@ -23,6 +26,8 @@ class TimerScreen {
         void setTimerIntervalMinutes(int minutes);
         int getTimerIntervalSeconds();
         void setTimerIntervalSeconds(int seconds);
+
+        void handleButtonPress(String buttonName);
 
     private:
         bool _isTimerRunning = false;

@@ -39,10 +39,10 @@ void StopwatchScreen::initStopwatchScreen()
   
   if (_isStopWatchRunning) {
     ez.buttons.show("Stop # Reset # Menu");
-    displayActualTime();
+    this->displayActualTime();
   } else {
     ez.buttons.show("Start # Reset # Menu");
-    displayZeroTime();
+    this->displayZeroTime();
   }
 }
 
@@ -81,11 +81,36 @@ void StopwatchScreen::resetStopwatch()
 void StopwatchScreen::displayStopwatch()
 {
   if (secondChanged() && _isStopWatchRunning) {
-    displayActualTime();
+    this->displayActualTime();
   }
 }
 
 bool StopwatchScreen::isRunning()
 {
     return _isStopWatchRunning;
+}
+
+void StopwatchScreen::handleButtonPress(String buttonName)
+{
+  if (buttonName == "Start")
+  {
+    ez.buttons.show("$Stop # Reset # Menu");
+    this->startStopwatch();
+    delay(300);
+    ez.buttons.show("Stop # Reset # Menu");
+  }
+  else if (buttonName == "Stop")
+  {
+    ez.buttons.show("$Start # Reset # Menu");
+    this->stopStopwatch();
+    delay(300);
+    ez.buttons.show("Start # Reset # Menu");
+  }
+  else if (buttonName == "Reset")
+  {
+    ez.buttons.show("Start # $Reset # Menu");
+    this->resetStopwatch();
+    delay(300);
+    ez.buttons.show("Start # Reset # Menu");
+  }
 }

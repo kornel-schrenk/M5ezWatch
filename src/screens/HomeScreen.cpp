@@ -1,6 +1,7 @@
 #include "screens/HomeScreen.h"
 #include "screens/Screens.h"
 #include "Preferences.h"
+#include "RTClib.h"
 
 void HomeScreen::updateTime()
 {    
@@ -70,9 +71,9 @@ void HomeScreen::initHomeScreen(StopwatchScreen* stopwatchScreen, AlarmScreen* a
   }    
 
   if (timeStatus() == timeSet) {     
-    updateTime();
-    updateDate();
-    updateAmPm();
+    this->updateTime();
+    this->updateDate();
+    this->updateAmPm();
   }
 }
 
@@ -80,15 +81,15 @@ void HomeScreen::displayHomeClock(AlarmScreen* alarmScreen, TimerScreen* timerSc
 {
   if (timeStatus() == timeSet) {
     if (minuteChanged()) {          
-      updateTime();
-      updateDate();
-      updateAmPm();
-      _refreshClockWidget();
+      this->updateTime();
+      this->updateDate();
+      this->updateAmPm();
+      this->_refreshClockWidget();
       alarmScreen->checkAndFireAlarm();     
     }
 
     if (secondChanged()) {    
-      updateTime();
+      this->updateTime();
       timerScreen->checkAndFireTimer(SCREEN_HOME);      
     } 
   }
@@ -106,7 +107,84 @@ bool HomeScreen::_isClockWidgetDisplayed()
 void HomeScreen::_refreshClockWidget() 
 {
   //HACK: Refresh the clock widget at the top in every minute    
-  if (_isClockWidgetDisplayed()) {
+  if (this->_isClockWidgetDisplayed()) {
     ez.header.draw("clock");    
   }   
+}
+
+bool HomeScreen::isMinimalModeActive()
+{
+  return _isMinimalModeActive;
+}
+
+void HomeScreen::handleButtonPress(String buttonName, StopwatchScreen* stopwatchScreen, AlarmScreen* alarmScreen, TimerScreen* timerScreen)
+{
+  if (buttonName == "Update")
+  {
+    ez.buttons.show("$Update # Menu # Minimal");
+    updateNTP();
+    if (timeStatus() == timeSet)
+    {
+      //Update timezone based on Preferences
+      String storedTimezone = getTimezoneLocation();
+      Serial.println("Stored timezone: " + storedTimezone);
+      ez.clock.tz.setLocation(storedTimezone);
+      Serial.println("New timezone was set to " + storedTimezone);
+
+      this->storeTimeInRtc();
+
+      ez.msgBox("Updated", dateTime(ez.clock.tz.now(), "Y-m-d H:i:s") + "||was set.", "Ok");
+    }
+    else
+    {
+      ez.msgBox("Error", "Time update failed.", "Ok");
+    }
+    initHomeScreen(stopwatchScreen, alarmScreen, timerScreen);
+  }
+  else if (buttonName == "Minimal")
+  {
+    if (!_isMinimalModeActive)
+    {
+      _isMinimalModeActive = true;
+      ez.screen.clear();
+      this->updateTime();
+      this->updateDate();
+    }
+    else
+    {
+      _isMinimalModeActive = false;
+    }
+  }
+}
+
+String HomeScreen::getTimezoneLocation()
+{
+	Preferences prefs;
+	prefs.begin("M5ez", true);	// read-only
+	String savedTimezone = prefs.getString("timezone", "GeoIP");
+  prefs.end();
+  return savedTimezone;
+}
+
+void HomeScreen::storeTimeInRtc()
+{
+  //Update the RTC based time
+  DateTime rtcDateTime = DateTime(ez.clock.tz.now());
+ 
+  RTC_DS1307 rtc;
+  rtc.adjust(rtcDateTime);
+
+  Serial.println(F("RTC time was set as: "));
+  Serial.print(rtcDateTime.year(), DEC);
+  Serial.print('-');
+  Serial.print(rtcDateTime.month(), DEC);
+  Serial.print('-');
+  Serial.print(rtcDateTime.day(), DEC);
+  Serial.print(' ');
+  Serial.print(rtcDateTime.hour(), DEC);
+  Serial.print(':');
+  Serial.print(rtcDateTime.minute(), DEC);
+  Serial.print(':');
+  Serial.print(rtcDateTime.second(), DEC);
+  Serial.println();
 }

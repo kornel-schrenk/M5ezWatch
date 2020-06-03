@@ -8,14 +8,19 @@
 class StopwatchScreen {
 
     public:
+        void initStopwatchScreen();
+        
+        void displayStopwatch();
         void displayZeroTime();
         void displayActualTime();
-        void initStopwatchScreen();
+        
         void startStopwatch();
         void stopStopwatch();
         void resetStopwatch();
-        void displayStopwatch();
+        
         bool isRunning();    
+
+        void handleButtonPress(String buttonName);
 
     private:
         bool _isStopWatchRunning = false;

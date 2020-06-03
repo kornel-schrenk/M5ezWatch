@@ -1,5 +1,6 @@
 #include "screens/TimerScreen.h"
 #include "screens/Screens.h"
+#include "pickers/DateTimePicker.h"
 
 void TimerScreen::displayZeroTimerTime()
 {
@@ -38,7 +39,7 @@ void TimerScreen::checkAndFireTimer(int currentScreen)
             if (currentScreen == SCREEN_TIMER)
             {
                 // Display zero time
-                displayZeroTimerTime();
+                this->displayZeroTimerTime();
             }
         }
     }
@@ -67,7 +68,7 @@ void TimerScreen::displayElapsedTimerTime()
     uint8_t elapsedPercentage = (elapsedTimeInSeconds * 100) / timerIntervalInSeconds;
     M5.Lcd.progressBar(10, 100, 300, 25, elapsedPercentage);
 
-    checkAndFireTimer(SCREEN_TIMER);
+    this->checkAndFireTimer(SCREEN_TIMER);
 }
 
 void TimerScreen::initTimerScreen()
@@ -90,12 +91,12 @@ void TimerScreen::initTimerScreen()
     if (_isTimerRunning)
     {
         ez.buttons.show("Stop # Interval # Menu");
-        displayElapsedTimerTime();
+        this->displayElapsedTimerTime();
     }
     else
     {
         ez.buttons.show("Start # Interval # Menu");
-        displayZeroTimerTime();
+        this->displayZeroTimerTime();
     }
 }
 
@@ -103,7 +104,7 @@ void TimerScreen::displayTimer()
 {
     if (secondChanged() && _isTimerRunning)
     {
-        displayElapsedTimerTime();
+        this->displayElapsedTimerTime();
     }
 }
 
@@ -111,7 +112,7 @@ void TimerScreen::startTimer()
 {
     _timerStartTimestamp = now();
     _isTimerRunning = true;
-    displayZeroTimerTime();
+    this->displayZeroTimerTime();
 }
 
 void TimerScreen::stopTimer()
@@ -152,4 +153,41 @@ int TimerScreen::getTimerIntervalSeconds()
 void TimerScreen::setTimerIntervalSeconds(int seconds)
 {
     _timerIntervalSeconds = seconds;
+}
+
+void TimerScreen::handleButtonPress(String buttonName)
+{
+    if (buttonName == "Start")
+    {
+        ez.buttons.show("$Stop # Interval # Menu");
+        this->startTimer();
+        delay(300);
+        ez.buttons.show("Stop # Interval # Menu");
+    }
+    else if (buttonName == "Stop")
+    {
+        ez.buttons.show("$Start # Interval # Menu");
+        this->stopTimer();
+        delay(300);
+        ez.buttons.show("Start # Interval # Menu");
+    }
+    else if (buttonName == "Interval")
+    {
+        time_t initialTime = now();
+        initialTime = makeTime(this->getTimerIntervalHours(), this->getTimerIntervalMinutes(), this->getTimerIntervalSeconds(), day(initialTime), month(initialTime), year(initialTime));
+        Serial.println("Initial interval time: " + dateTime(initialTime, "Y-m-d H:i:s"));
+
+        DateTimePicker intervalPicker;
+        time_t pickedTime = intervalPicker.runOnce("Interval", initialTime, true, true);
+
+        if (pickedTime != 0)
+        {
+            this->setTimerIntervalHours(hour(pickedTime));
+            this->setTimerIntervalMinutes(minute(pickedTime));
+            this->setTimerIntervalSeconds(second(pickedTime));
+
+            Serial.println("Picked interval time: " + dateTime(pickedTime, "Y-m-d H:i:s"));
+        }
+        this->initTimerScreen();
+    }
 }

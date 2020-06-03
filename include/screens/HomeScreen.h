@@ -15,16 +15,25 @@
 class HomeScreen {
 
     public:
+        void initHomeScreen(StopwatchScreen* stopwatchScreen, AlarmScreen* alarmScreen, TimerScreen* timerScreen);
+        
+        void displayHomeClock(AlarmScreen* alarmScreen, TimerScreen* timerScreen);
         void updateTime();
         void updateDate();
         void updateAmPm();
         
-        void initHomeScreen(StopwatchScreen* stopwatchScreen, AlarmScreen* alarmScreen, TimerScreen* timerScreen);
-        void displayHomeClock(AlarmScreen* alarmScreen, TimerScreen* timerScreen);
+        bool isMinimalModeActive();
+
+        void handleButtonPress(String buttonName, StopwatchScreen* stopwatchScreen, AlarmScreen* alarmScreen, TimerScreen* timerScreen);
+        
+        String getTimezoneLocation();
+        void storeTimeInRtc();
+
     private:
         void _refreshClockWidget();
         bool _isClockWidgetDisplayed();
-};
 
+        bool _isMinimalModeActive = false;
+};
 
 #endif
