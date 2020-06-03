@@ -12,9 +12,9 @@
 
 class DateTimePicker {
 public:    
-    static time_t runOnce(String pickerName, time_t initialTime, bool displayCancel = false, bool onlyPickTime = false);
+    static time_t runOnce(String pickerName, time_t initialTime, bool displayCancel = false, bool onlyPickTime = false, bool displaySeconds = true);
 private:
-    static String _displayPickerMenu(String pickerName, bool displayCancel = false, bool onlyPickTime = false);
+    static String _displayPickerMenu(String pickerName, bool displayCancel = false, bool onlyPickTime = false, bool displaySeconds = true);
     
     // The currently picked date and time values
     static String _pickedYear;

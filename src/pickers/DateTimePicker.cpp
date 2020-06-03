@@ -439,7 +439,7 @@ bool DateTimePicker::_advancedDisplaySecondPicker(ezMenu* callingMenu) {
 // Picker Menu //
 /////////////////
 
-String DateTimePicker::_displayPickerMenu(String pickerName, bool displayCancel, bool onlyPickTime)
+String DateTimePicker::_displayPickerMenu(String pickerName, bool displayCancel, bool onlyPickTime, bool displaySeconds)
 { 
   ezMenu pickerMenu(pickerName);
 
@@ -465,9 +465,11 @@ String DateTimePicker::_displayPickerMenu(String pickerName, bool displayCancel,
     pickerMenu.addItem(dayItemText, NULL, _advancedDisplayDayPicker, NULL);
   }
   pickerMenu.addItem(hourItemText, NULL, _advancedDisplayHourPicker, NULL);
-  pickerMenu.addItem(minuteItemText, NULL, _advancedDisplayMinutePicker, NULL);  
-  pickerMenu.addItem(secondItemText, NULL, _advancedDisplaySecondPicker, NULL);  
-
+  pickerMenu.addItem(minuteItemText, NULL, _advancedDisplayMinutePicker, NULL);
+  if (displaySeconds) {
+    pickerMenu.addItem(secondItemText, NULL, _advancedDisplaySecondPicker, NULL);  
+  }
+  
   pickerMenu.runOnce();
  
   if (pickerMenu.pickButton() == "Back") {
@@ -478,7 +480,7 @@ String DateTimePicker::_displayPickerMenu(String pickerName, bool displayCancel,
   return "";
 }
 
-time_t DateTimePicker::runOnce(String pickerName, time_t initialTime, bool displayCancel, bool onlyPickTime)
+time_t DateTimePicker::runOnce(String pickerName, time_t initialTime, bool displayCancel, bool onlyPickTime, bool displaySeconds)
 {
   _pickedYear = String(year(initialTime));
   _pickedMonth = String(zeropad(month(initialTime), 2));
@@ -493,7 +495,7 @@ time_t DateTimePicker::runOnce(String pickerName, time_t initialTime, bool displ
   _pickerCheckButtonName = "Select";
 
   while (true) {
-    String selectedAction = _displayPickerMenu(pickerName, displayCancel, onlyPickTime);
+    String selectedAction = _displayPickerMenu(pickerName, displayCancel, onlyPickTime, displaySeconds);
     if (selectedAction == "Back") {
       return 0;
     } else if (selectedAction == "Ok") {
@@ -501,5 +503,10 @@ time_t DateTimePicker::runOnce(String pickerName, time_t initialTime, bool displ
     }
   }
 
-  return makeTime(_pickedHour.toInt(), _pickedMinute.toInt(), _pickedSecond.toInt(), _pickedDay.toInt(), _pickedMonth.toInt(), _pickedYear.toInt());
+  uint8_t seconds = 0;
+  if (displaySeconds) {
+    seconds = _pickedSecond.toInt();
+  } 
+
+  return makeTime(_pickedHour.toInt(), _pickedMinute.toInt(), seconds, _pickedDay.toInt(), _pickedMonth.toInt(), _pickedYear.toInt());
 }

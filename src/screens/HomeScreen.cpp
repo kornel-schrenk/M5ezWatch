@@ -80,12 +80,12 @@ void HomeScreen::initHomeScreen(StopwatchScreen* stopwatchScreen, AlarmScreen* a
 void HomeScreen::displayHomeClock(AlarmScreen* alarmScreen, TimerScreen* timerScreen)
 {
   if (timeStatus() == timeSet) {
-    if (minuteChanged()) {          
+    if (minuteChanged()) {  
+      alarmScreen->checkAndFireAlarm();        
       this->updateTime();
       this->updateDate();
       this->updateAmPm();
-      this->_refreshClockWidget();
-      alarmScreen->checkAndFireAlarm();     
+      this->_refreshClockWidget();             
     }
 
     if (secondChanged()) {    

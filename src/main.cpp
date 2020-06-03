@@ -18,7 +18,7 @@
 #include "screens/HomeScreen.h"
 #include "screens/MainMenu.h"
 
-const String VERSION_NUMBER = "0.7.2";
+const String VERSION_NUMBER = "0.7.4";
 
 int _currentScreen = SCREEN_HOME;
 
@@ -40,7 +40,7 @@ MainMenu mainMenuScreen = MainMenu();
 // Utility methods //
 /////////////////////
 
-void setTimeFromRtc()
+bool setTimeFromRtc()
 {
   if (timeStatus() == timeNotSet || timeStatus() == timeNeedsSync)
   {
@@ -69,6 +69,7 @@ void setTimeFromRtc()
 
       setTime(timerTimestamp);
       Serial.println("RTC based time was set.");
+      return true;
     }
     else
     {
@@ -76,6 +77,7 @@ void setTimeFromRtc()
       // No clock will be displayed - update has to be done manually with the Update button
     }
   }
+  return false;
 }
 
 ///////////////////////
@@ -103,8 +105,10 @@ void setup()
   //The update needs several seconds to execute, which makes the seconds counter freeze until the update
   setInterval(0);
 
-  setTimeFromRtc();
-
+  if (setTimeFromRtc()) {
+    alarmScreen.setInitialAlarmTime(ez.clock.tz.now());
+  }
+  
   homeScreen.initHomeScreen(&stopwatchScreen, &alarmScreen, &timerScreen);
 }
 

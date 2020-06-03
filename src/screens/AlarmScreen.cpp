@@ -3,16 +3,19 @@
 
 void AlarmScreen::initAlarmScreen() 
 { 
+  if (_alarmTime == 0 && timeStatus() == timeSet) {
+    this->setInitialAlarmTime(ez.clock.tz.now());
+  }
+
   DateTimePicker alarmPicker;
-  time_t pickedDateTime = alarmPicker.runOnce("Alarm", _alarmTime, _isAlarmRunning);
+  time_t pickedDateTime = alarmPicker.runOnce("Alarm", _alarmTime, _isAlarmRunning, false, false);
 
   if (pickedDateTime == 0) { // Back pressed
     if (_isAlarmRunning) {
       ez.msgBox("Not Alarmed", dateTime(_alarmTime, "Y-m-d H:i") + "||was cancelled.", "Ok");
     }
-    _isAlarmRunning = false;
-    _alarmTime = now();  
-  }  else if (pickedDateTime <= now()) {
+    _isAlarmRunning = false;    
+  }  else if (pickedDateTime <= ez.clock.tz.now()) {
     ez.msgBox("Error", dateTime(pickedDateTime, "Y-m-d H:i") + "||is in the past!", "Ok");    
   } else {
     _isAlarmRunning = true;
@@ -23,9 +26,10 @@ void AlarmScreen::initAlarmScreen()
 
 void AlarmScreen::checkAndFireAlarm()
 {
-  if (_isAlarmRunning && now() >= _alarmTime) {
+  if (_isAlarmRunning && ez.clock.tz.now() >= _alarmTime) {
     
-    Serial.println(F("ALARM!!!"));
+    Serial.print(dateTime(_alarmTime, "Y-m-d H:i:s"));
+    Serial.println(F(" ALARM!!!"));
     
     _isAlarmRunning = false;
 
@@ -48,4 +52,9 @@ void AlarmScreen::checkAndFireAlarm()
 bool AlarmScreen::isRunning()
 {
     return _isAlarmRunning;
+}
+
+void AlarmScreen::setInitialAlarmTime(time_t alarmTime)
+{
+  _alarmTime = alarmTime;
 }

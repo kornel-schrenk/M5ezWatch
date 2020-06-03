@@ -9,12 +9,14 @@ class AlarmScreen {
 
     public:
         void initAlarmScreen();
+        
         void checkAndFireAlarm();
         bool isRunning();
 
+        void setInitialAlarmTime(time_t alarmTime);
     private:
         bool _isAlarmRunning = false;
-        time_t _alarmTime = now();
+        time_t _alarmTime;
 
 };
 
