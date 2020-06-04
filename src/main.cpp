@@ -11,14 +11,14 @@
 #include "pickers/DateTimePicker.h"
 #include "pickers/SettingsPicker.h"
 
-#include "screens/Screens.h"
+#include "screens/M5ezWatchScreen.h"
 #include "screens/StopwatchScreen.h"
 #include "screens/TimerScreen.h"
 #include "screens/AlarmScreen.h"
 #include "screens/HomeScreen.h"
 #include "screens/MainMenu.h"
 
-const String VERSION_NUMBER = "0.7.4";
+const String VERSION_NUMBER = "0.8.1";
 
 int _currentScreen = SCREEN_HOME;
 

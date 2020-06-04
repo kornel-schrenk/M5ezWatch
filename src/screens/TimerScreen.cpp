@@ -102,6 +102,11 @@ void TimerScreen::initTimerScreen()
 
 void TimerScreen::displayTimer()
 {
+    if (minuteChanged()) {
+        this->refreshClockWidget();
+        this->displayElapsedTimerTime();
+    }
+
     if (secondChanged() && _isTimerRunning)
     {
         this->displayElapsedTimerTime();

@@ -8,7 +8,9 @@
 #include "images/jpgs.h"
 #include "images/jpgsdark.h"
 
-class MainMenu {
+#include "screens/M5ezWatchScreen.h"
+
+class MainMenu : public M5ezWatchScreen {
 
     public:
         ezMenu initMainMenu();

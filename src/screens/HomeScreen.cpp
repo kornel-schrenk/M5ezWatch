@@ -85,7 +85,7 @@ void HomeScreen::displayHomeClock(AlarmScreen* alarmScreen, TimerScreen* timerSc
       this->updateTime();
       this->updateDate();
       this->updateAmPm();
-      this->_refreshClockWidget();             
+      this->refreshClockWidget();             
     }
 
     if (secondChanged()) {    
@@ -93,23 +93,6 @@ void HomeScreen::displayHomeClock(AlarmScreen* alarmScreen, TimerScreen* timerSc
       timerScreen->checkAndFireTimer(SCREEN_HOME);      
     } 
   }
-}
-
-bool HomeScreen::_isClockWidgetDisplayed() 
-{
-  Preferences prefs;
-  prefs.begin("M5ez", true);	// read-only
-  bool isDisplayed = prefs.getBool("clock_on", true);    
-  prefs.end();
-  return isDisplayed;
-}
-
-void HomeScreen::_refreshClockWidget() 
-{
-  //HACK: Refresh the clock widget at the top in every minute    
-  if (this->_isClockWidgetDisplayed()) {
-    ez.header.draw("clock");    
-  }   
 }
 
 bool HomeScreen::isMinimalModeActive()

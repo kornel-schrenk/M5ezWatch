@@ -5,7 +5,9 @@
 #include "M5ez.h"
 #include "ezTime.h"
 
-class TimerScreen {
+#include "screens/M5ezWatchScreen.h"
+
+class TimerScreen : public M5ezWatchScreen {
 
     public:
         void initTimerScreen();

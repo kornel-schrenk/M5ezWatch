@@ -80,6 +80,11 @@ void StopwatchScreen::resetStopwatch()
 
 void StopwatchScreen::displayStopwatch()
 {
+  if (minuteChanged()) {
+    this->refreshClockWidget();
+    this->displayActualTime();
+  }
+
   if (secondChanged() && _isStopWatchRunning) {
     this->displayActualTime();
   }

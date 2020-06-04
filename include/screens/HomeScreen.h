@@ -8,11 +8,12 @@
 #include "images/jpgs.h"
 #include "images/jpgsdark.h"
 
+#include "screens/M5ezWatchScreen.h"
 #include "screens/StopwatchScreen.h"
 #include "screens/AlarmScreen.h"
 #include "screens/TimerScreen.h"
 
-class HomeScreen {
+class HomeScreen : public M5ezWatchScreen {
 
     public:
         void initHomeScreen(StopwatchScreen* stopwatchScreen, AlarmScreen* alarmScreen, TimerScreen* timerScreen);
@@ -30,9 +31,6 @@ class HomeScreen {
         void storeTimeInRtc();
 
     private:
-        void _refreshClockWidget();
-        bool _isClockWidgetDisplayed();
-
         bool _isMinimalModeActive = false;
 };
 
