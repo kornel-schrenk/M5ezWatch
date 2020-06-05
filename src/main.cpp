@@ -18,7 +18,7 @@
 #include "screens/HomeScreen.h"
 #include "screens/MainMenu.h"
 
-const String VERSION_NUMBER = "0.8.1";
+const String VERSION_NUMBER = "0.8.2";
 
 int _currentScreen = SCREEN_HOME;
 
@@ -195,6 +195,13 @@ void loop()
     case SCREEN_TIMER:
       timerScreen.displayTimer();
       break;
+    case SCREEN_ALARM:
+        if (minuteChanged()) {
+          alarmScreen.refreshClockWidget();    
+        }
+        break;
+    case SCREEN_SETTINGS:
+      break;  
     }
   }
 }

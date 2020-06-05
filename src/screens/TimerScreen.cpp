@@ -47,7 +47,16 @@ void TimerScreen::checkAndFireTimer(int currentScreen)
 
 void TimerScreen::displayElapsedTimerTime()
 {
+    int timerIntervalInSeconds = _timerIntervalHours * 3600 + _timerIntervalMinutes * 60 + _timerIntervalSeconds;
+
     unsigned long elapsedTimeInSeconds = now() - _timerStartTimestamp;
+
+    // Fix times, if timer overran on non-timer and non-home screens
+    if (elapsedTimeInSeconds > timerIntervalInSeconds) {
+        int remainingSeconds = elapsedTimeInSeconds % timerIntervalInSeconds;
+        elapsedTimeInSeconds = remainingSeconds;
+        _timerStartTimestamp = now() - remainingSeconds;
+    }
 
     int hours = elapsedTimeInSeconds / 3600;
     int minutes = elapsedTimeInSeconds % 3600 / 60;
@@ -63,8 +72,7 @@ void TimerScreen::displayElapsedTimerTime()
     ez.canvas.print(":");
     ez.canvas.print(zeropad(seconds, 2));
 
-    // Calculate elapsed time %
-    int timerIntervalInSeconds = _timerIntervalHours * 3600 + _timerIntervalMinutes * 60 + _timerIntervalSeconds;
+    // Calculate elapsed time %    
     uint8_t elapsedPercentage = (elapsedTimeInSeconds * 100) / timerIntervalInSeconds;
     M5.Lcd.progressBar(10, 100, 300, 25, elapsedPercentage);
 
