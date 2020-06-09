@@ -18,7 +18,7 @@
 #include "screens/HomeScreen.h"
 #include "screens/MainMenu.h"
 
-const String VERSION_NUMBER = "0.8.2";
+const String VERSION_NUMBER = "1.0.0";
 
 int _currentScreen = SCREEN_HOME;
 
@@ -35,6 +35,8 @@ AlarmScreen alarmScreen = AlarmScreen();
 TimerScreen timerScreen = TimerScreen();
 HomeScreen homeScreen = HomeScreen();
 MainMenu mainMenuScreen = MainMenu();
+
+SettingsPicker settingsPicker;
 
 /////////////////////
 // Utility methods //
@@ -153,8 +155,7 @@ void loop()
       _backToMenu = false;
       _currentScreen = SCREEN_TIMER;
       break;
-    case 4:
-      SettingsPicker settingsPicker;
+    case 4:      
       settingsPicker.runOnce("Settings");
       _backToMenu = true;
       _currentScreen = SCREEN_SETTINGS;
@@ -201,6 +202,10 @@ void loop()
         }
         break;
     case SCREEN_SETTINGS:
+        if (minuteChanged()) {
+          settingsPicker.refreshClockWidget();    
+        }
+        break;
       break;  
     }
   }

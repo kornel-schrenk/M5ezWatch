@@ -2,7 +2,9 @@
 #include "M5ez.h"
 #include "ezTime.h"
 
-class SettingsPicker {
+#include "screens/M5ezWatchScreen.h"
+
+class SettingsPicker : public M5ezWatchScreen {
 public:    
     static void runOnce(String pickerName);
 private:
