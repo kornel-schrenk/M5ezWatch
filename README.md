@@ -1,13 +1,20 @@
 # M5ezWatch
-M5Stack ESP32 Core based maker watch.
+
+[M5Stack ESP32 Basic Core](https://m5stack.com/collections/m5-core/products/basic-core-iot-development-kit) based **maker watch**.
+
+[[https://github.com/kornel-schrenk/M5ezWatch/wiki/images/M5ezWatch.png|]]
 
 ## Documentation
 
-The project documentation is available on the GitHub project Wiki. Please start with the [Home](https://github.com/kornel-schrenk/M5ezWatch/wiki) page!
+The project documentation is available on the GitHub project [Wiki](https://github.com/kornel-schrenk/M5ezWatch/wiki). 
+
+The [Home](https://github.com/kornel-schrenk/M5ezWatch/wiki) page provides more information about the project motivation. 
+
+The [Quick Start Guide](https://github.com/kornel-schrenk/M5ezWatch/wiki/Quick-Start-Guide) will help to make build your own copy!
 
 ## Repository Owner 
 
-* [Kornel Schrenk](http://www.schrenk.hu/about/)
+* [Kornel Schrenk](http://www.schrenk.hu)
 
 ## License
 
