@@ -2,7 +2,7 @@
 
 [M5Stack ESP32 Basic Core](https://m5stack.com/collections/m5-core/products/basic-core-iot-development-kit) based **maker watch**.
 
-[[https://github.com/kornel-schrenk/M5ezWatch/wiki/images/M5ezWatch.png|]]
+![alt text](../master/M5ezWatch.png "M5ezWatch")
 
 ## Documentation
 
