@@ -12,6 +12,8 @@ The [Home](https://github.com/kornel-schrenk/M5ezWatch/wiki) page provides more 
 
 The [Quick Start Guide](https://github.com/kornel-schrenk/M5ezWatch/wiki/Quick-Start-Guide) will help to build your own copy!
 
+The project can also be found on [hackster.io](https://www.hackster.io/korsch14/m5ezwatch-b4517c).
+
 ## Repository Owner 
 
 * [Kornel Schrenk](http://www.schrenk.hu)
