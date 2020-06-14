@@ -8,7 +8,7 @@
 
 The project documentation is available on the GitHub project [Wiki](https://github.com/kornel-schrenk/M5ezWatch/wiki). 
 
-The [Home](https://github.com/kornel-schrenk/M5ezWatch/wiki) page provides more information about the project motivation. 
+The [Home](https://github.com/kornel-schrenk/M5ezWatch/wiki) page provides more information about motivation behind the project. 
 
 The [Quick Start Guide](https://github.com/kornel-schrenk/M5ezWatch/wiki/Quick-Start-Guide) will help to make build your own copy!
 
