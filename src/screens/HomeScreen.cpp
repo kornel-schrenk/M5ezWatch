@@ -1,7 +1,7 @@
 #include "screens/HomeScreen.h"
 #include "screens/Screens.h"
 #include "Preferences.h"
-#include "RTClib.h"
+
 
 void HomeScreen::updateTime()
 {    
@@ -34,9 +34,10 @@ void HomeScreen::updateAmPm()
   }
 }
 
-void HomeScreen::initHomeScreen(StopwatchScreen* stopwatchScreen, AlarmScreen* alarmScreen, TimerScreen* timerScreen) 
+void HomeScreen::initHomeScreen(Unit_RTC* rtc, StopwatchScreen* stopwatchScreen, AlarmScreen* alarmScreen, TimerScreen* timerScreen) 
 {  
-  ez.screen.clear();
+  _rtc = rtc;
+  ez.screen.clear();  
   ez.header.show("M5ezWatch");
   ez.buttons.show("Update # Menu # Minimal");  
 
@@ -111,8 +112,11 @@ void HomeScreen::handleButtonPress(String buttonName, StopwatchScreen* stopwatch
       //Update timezone based on Preferences
       String storedTimezone = getTimezoneLocation();
       Serial.println("Stored timezone: " + storedTimezone);
-      ez.clock.tz.setLocation(storedTimezone);
-      Serial.println("New timezone was set to " + storedTimezone);
+      if (ez.clock.tz.setLocation(storedTimezone)) {
+        Serial.println("New timezone was set to " + storedTimezone);
+      } else {
+        Serial.println("Timezone update failed.");
+      }
 
       this->storeTimeInRtc();
 
@@ -122,7 +126,7 @@ void HomeScreen::handleButtonPress(String buttonName, StopwatchScreen* stopwatch
     {
       ez.msgBox("Error", "Time update failed.", "Ok");
     }
-    initHomeScreen(stopwatchScreen, alarmScreen, timerScreen);
+    initHomeScreen(_rtc, stopwatchScreen, alarmScreen, timerScreen);
   }
   else if (buttonName == "Minimal")
   {
@@ -150,24 +154,37 @@ String HomeScreen::getTimezoneLocation()
 }
 
 void HomeScreen::storeTimeInRtc()
-{
-  //Update the RTC based time
-  DateTime rtcDateTime = DateTime(ez.clock.tz.now());
+{ 
+  Serial.print(F("Timezone time: "));
+  Serial.println(ez.clock.tz.dateTime("Y-m-d H:i:s"));
+
+  tmElements_t currentDateTime;
+  ezt::breakTime(ez.clock.tz.now(), currentDateTime);
+
+  rtc_date_type rtcDate;
+  rtcDate.Year = 1970 + currentDateTime.Year;  
+  rtcDate.Month = currentDateTime.Month;
+  rtcDate.Date = currentDateTime.Day;
+
+  rtc_time_type rtcTime;
+  rtcTime.Hours = currentDateTime.Hour;
+  rtcTime.Minutes = currentDateTime.Minute;
+  rtcTime.Seconds = currentDateTime.Second; 
  
-  RTC_DS1307 rtc;
-  rtc.adjust(rtcDateTime);
+  _rtc->setTime(&rtcTime);
+  _rtc->setDate(&rtcDate);   
 
   Serial.println(F("RTC time was set as: "));
-  Serial.print(rtcDateTime.year(), DEC);
+  Serial.print(rtcDate.Year, DEC);
   Serial.print('-');
-  Serial.print(rtcDateTime.month(), DEC);
+  Serial.print(rtcDate.Month, DEC);
   Serial.print('-');
-  Serial.print(rtcDateTime.day(), DEC);
+  Serial.print(rtcDate.Date, DEC);
   Serial.print(' ');
-  Serial.print(rtcDateTime.hour(), DEC);
+  Serial.print(rtcTime.Hours, DEC);
   Serial.print(':');
-  Serial.print(rtcDateTime.minute(), DEC);
+  Serial.print(rtcTime.Minutes, DEC);
   Serial.print(':');
-  Serial.print(rtcDateTime.second(), DEC);
+  Serial.print(rtcTime.Seconds, DEC);
   Serial.println();
 }

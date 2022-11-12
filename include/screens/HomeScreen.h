@@ -4,6 +4,7 @@
 #include "Arduino.h"
 #include "M5ez.h"
 #include "ezTime.h"
+#include "Unit_RTC.h"
 
 #include "images/jpgs.h"
 #include "images/jpgsdark.h"
@@ -16,7 +17,7 @@
 class HomeScreen : public M5ezWatchScreen {
 
     public:
-        void initHomeScreen(StopwatchScreen* stopwatchScreen, AlarmScreen* alarmScreen, TimerScreen* timerScreen);
+        void initHomeScreen(Unit_RTC* rtc, StopwatchScreen* stopwatchScreen, AlarmScreen* alarmScreen, TimerScreen* timerScreen);
         
         void displayHomeClock(AlarmScreen* alarmScreen, TimerScreen* timerScreen);
         void updateTime();
@@ -32,6 +33,7 @@ class HomeScreen : public M5ezWatchScreen {
 
     private:
         bool _isMinimalModeActive = false;
+        Unit_RTC* _rtc;
 };
 
 #endif

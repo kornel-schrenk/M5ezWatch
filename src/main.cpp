@@ -1,9 +1,9 @@
 #include "Arduino.h"
 #include "M5Stack.h"
+#include "Unit_RTC.h"
 #include "ezTime.h"
 #include "M5ez.h"
 #include "Preferences.h"
-#include "RTClib.h"
 
 #include "images/jpgs.h"
 #include "images/jpgsdark.h"
@@ -18,13 +18,19 @@
 #include "screens/HomeScreen.h"
 #include "screens/MainMenu.h"
 
-const String VERSION_NUMBER = "1.0.0";
+const String VERSION_NUMBER = "1.1.0";
 
 int _currentScreen = SCREEN_HOME;
 
 int16_t _lastPickedMainMenuIndex = 1;
 
 bool _backToMenu = false;
+
+//////////////
+// RTC Unit //
+//////////////
+
+Unit_RTC rtc = Unit_RTC();
 
 /////////////
 // SCREENS //
@@ -48,36 +54,38 @@ bool setTimeFromRtc()
   {
     Serial.println("Network time is unavailable");
 
-    RTC_DS1307 rtc;
-    //Real Time Clock (RTC) initialization
-    if (rtc.begin())
-    {
-      unsigned long timerTimestamp = rtc.now().unixtime();
-      Serial.println(F("RTC time available: "));
+    rtc_time_type rtcTime;
+    rtc_date_type rtcDate;
 
-      DateTime now = rtc.now();
-      Serial.print(now.year(), DEC);
-      Serial.print('-');
-      Serial.print(now.month(), DEC);
-      Serial.print('-');
-      Serial.print(now.day(), DEC);
-      Serial.print(' ');
-      Serial.print(now.hour(), DEC);
-      Serial.print(':');
-      Serial.print(now.minute(), DEC);
-      Serial.print(':');
-      Serial.print(now.second(), DEC);
-      Serial.println();
+    rtc.getTime(&rtcTime); 
+    rtc.getDate(&rtcDate);
+    
+    if (2000 == rtcDate.Year && 0 == rtcDate.Month && 0 == rtcDate.Date &&
+        0 == rtcTime.Hours && 0 == rtcTime.Minutes && 0 == rtcTime.Seconds) {
 
-      setTime(timerTimestamp);
-      Serial.println("RTC based time was set.");
-      return true;
+        Serial.println(F("RTC is NOT available."));
+        // No clock will be displayed - update has to be done manually with the Update button
+        return false;
     }
-    else
-    {
-      Serial.println(F("RTC is NOT available."));
-      // No clock will be displayed - update has to be done manually with the Update button
-    }
+
+    Serial.println(F("RTC time available: "));
+    Serial.print(rtcDate.Year, DEC);
+    Serial.print('-');
+    Serial.print(rtcDate.Month, DEC);
+    Serial.print('-');
+    Serial.print(rtcDate.Date, DEC);
+    Serial.print(' ');
+    Serial.print(rtcTime.Hours, DEC);
+    Serial.print(':');
+    Serial.print(rtcTime.Minutes, DEC);
+    Serial.print(':');
+    Serial.print(rtcTime.Seconds, DEC);
+    Serial.println();
+      
+    setTime(rtcTime.Hours, rtcTime.Minutes, rtcTime.Seconds, rtcDate.Date, rtcDate.Month, rtcDate.Year);
+    Serial.println("RTC based time was set.");
+
+    return true;
   }
   return false;
 }
@@ -92,6 +100,7 @@ void setup()
 #include <themes/dark.h>
 
   ez.begin();
+  ezt::setDebug(INFO);
 
   Serial.println("\n");
   Serial.println(F(" __  __ ___        __      __    _      _    "));
@@ -107,11 +116,13 @@ void setup()
   //The update needs several seconds to execute, which makes the seconds counter freeze until the update
   setInterval(0);
 
+  rtc.begin();
+
   if (setTimeFromRtc()) {
     alarmScreen.setInitialAlarmTime(ez.clock.tz.now());
   }
   
-  homeScreen.initHomeScreen(&stopwatchScreen, &alarmScreen, &timerScreen);
+  homeScreen.initHomeScreen(&rtc, &stopwatchScreen, &alarmScreen, &timerScreen);
 }
 
 void loop()
@@ -122,7 +133,7 @@ void loop()
     buttonPressed = ez.buttons.poll();
     if (M5.BtnC.wasPressed() && homeScreen.isMinimalModeActive())
     {
-      homeScreen.initHomeScreen(&stopwatchScreen, &alarmScreen, &timerScreen);
+      homeScreen.initHomeScreen(&rtc, &stopwatchScreen, &alarmScreen, &timerScreen);
     }
   }
   if (_backToMenu || buttonPressed == "Menu")
@@ -136,7 +147,7 @@ void loop()
     switch (_lastPickedMainMenuIndex)
     {
     case 0:
-      homeScreen.initHomeScreen(&stopwatchScreen, &alarmScreen, &timerScreen);
+      homeScreen.initHomeScreen(&rtc, &stopwatchScreen, &alarmScreen, &timerScreen);
       _backToMenu = false;
       _currentScreen = SCREEN_HOME;
       break;
