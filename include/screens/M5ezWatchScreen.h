@@ -14,9 +14,9 @@ class M5ezWatchScreen {
 
     public: 
         void refreshClockWidget();
-        bool isClockWidgetDisplayed();
-    
+            
     private:
+        bool isClockWidgetDisplayed();
 };
 
 #endif

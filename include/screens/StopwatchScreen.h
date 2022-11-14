@@ -13,13 +13,7 @@ class StopwatchScreen : public M5ezWatchScreen {
         void initStopwatchScreen();
         
         void displayStopwatch();
-        void displayZeroTime();
-        void displayActualTime();
-        
-        void startStopwatch();
-        void stopStopwatch();
-        void resetStopwatch();
-        
+                
         bool isRunning();    
 
         void handleButtonPress(String buttonName);
@@ -28,6 +22,13 @@ class StopwatchScreen : public M5ezWatchScreen {
         bool _isStopWatchRunning = false;
         unsigned long _stopwatchStartTimestamp;
         unsigned long _stopwatchElapsedTime = 0;
+
+        void displayZeroTime();     
+        void displayActualTime();    
+
+        void startStopwatch();
+        void stopStopwatch();
+        void resetStopwatch();            
 };
 
 #endif

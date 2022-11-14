@@ -18,22 +18,21 @@ class HomeScreen : public M5ezWatchScreen {
 
     public:
         void initHomeScreen(Unit_RTC* rtc, StopwatchScreen* stopwatchScreen, AlarmScreen* alarmScreen, TimerScreen* timerScreen);
+        void handleButtonPress(String buttonName, StopwatchScreen* stopwatchScreen, AlarmScreen* alarmScreen, TimerScreen* timerScreen); 
         
-        void displayHomeClock(AlarmScreen* alarmScreen, TimerScreen* timerScreen);
-        void updateTime();
-        void updateDate();
-        void updateAmPm();
-        
-        bool isMinimalModeActive();
-
-        void handleButtonPress(String buttonName, StopwatchScreen* stopwatchScreen, AlarmScreen* alarmScreen, TimerScreen* timerScreen);
-        
-        String getTimezoneLocation();
-        void storeTimeInRtc();
+        void displayHomeClock(AlarmScreen* alarmScreen, TimerScreen* timerScreen);        
+        bool isMinimalModeActive();               
 
     private:
         bool _isMinimalModeActive = false;
         Unit_RTC* _rtc;
+
+        void updateTime();
+        void updateDate();
+        void updateAmPm();
+
+        String getTimezoneLocation();
+        void storeTimeInRtc();        
 };
 
 #endif

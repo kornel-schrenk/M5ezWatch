@@ -13,21 +13,9 @@ class TimerScreen : public M5ezWatchScreen {
         void initTimerScreen();
         void displayTimer();
 
-        void displayZeroTimerTime();
-        void displayElapsedTimerTime();
-
         void checkAndFireTimer(int currentScreen);
                         
-        void startTimer();
-        void stopTimer();
-        bool isRunning();
-        
-        int getTimerIntervalHours();
-        void setTimerIntervalHours(int hours);
-        int getTimerIntervalMinutes();
-        void setTimerIntervalMinutes(int minutes);
-        int getTimerIntervalSeconds();
-        void setTimerIntervalSeconds(int seconds);
+        bool isRunning();        
 
         void handleButtonPress(String buttonName);
 
@@ -38,6 +26,19 @@ class TimerScreen : public M5ezWatchScreen {
         int _timerIntervalHours = 0;
         int _timerIntervalMinutes = 1;
         int _timerIntervalSeconds = 0;
+
+        void displayZeroTimerTime();
+        void displayElapsedTimerTime();        
+
+        void startTimer();
+        void stopTimer();
+
+        int getTimerIntervalHours();
+        void setTimerIntervalHours(int hours);
+        int getTimerIntervalMinutes();
+        void setTimerIntervalMinutes(int minutes);
+        int getTimerIntervalSeconds();
+        void setTimerIntervalSeconds(int seconds);        
 };
 
 #endif
